@@ -1,9 +1,9 @@
-# Fabric Example Mod
+# [PECA] Player Extend Carpet Addition 
 
-## Setup
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+![issues](https://img.shields.io/github/issues/FengLiuFeseliud/Player-Extend-Carpet-Addition-Mod)![forks](https://img.shields.io/github/forks/FengLiuFeseliud/Player-Extend-Carpet-Addition-Mod)![stars](https://img.shields.io/github/stars/FengLiuFeseliud/Player-Extend-Carpet-Addition-Mod)![license](https://img.shields.io/github/license/FengLiuFeseliud/Player-Extend-Carpet-Addition-Mod)
 
-## License
+这是一个对 [地毯 carpet mod](https://github.com/gnembon/fabric-carpet) 的**扩展**, 扩展了 **carpet** 多假人操作
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+添加假人组控制, 假人队形
+
