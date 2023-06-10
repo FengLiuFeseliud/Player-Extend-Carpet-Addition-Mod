@@ -15,13 +15,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PlayerUtil {
 
     public static boolean canSpawn(String name, CommandContext<ServerCommandSource> context){
-        if (PecaSettings.playerReset){
+        AtomicBoolean canSpawn = new AtomicBoolean(true);
+        context.getSource().getServer().getPlayerManager().getPlayerList().forEach(player -> {
+            if (player.getName().getString().equals(name)){
+                canSpawn.set(false);
+            }
+        });
+        return canSpawn.get();
+    }
+
+    public static boolean canSpawnGroup(String nameHand, CommandContext<ServerCommandSource> context){
+        if (PecaSettings.groupCanBePlayerLogInSpawn){
             return true;
         }
 
         AtomicBoolean canSpawn = new AtomicBoolean(true);
         context.getSource().getServer().getPlayerManager().getPlayerList().forEach(player -> {
-            if (player.getName().getString().contains(name)){
+            if (player.getName().getString().contains(nameHand)){
                 canSpawn.set(false);
             }
         });
@@ -31,6 +41,10 @@ public class PlayerUtil {
     public static EntityPlayerMPFake spawn(String name, Vec3d pos, GameMode mode, CommandContext<ServerCommandSource> context){
         if (!canSpawn(name, context)){
             return null;
+        }
+
+        if (PecaSettings.fakePlayerGameModeLockSurvive){
+            mode = GameMode.SURVIVAL;
         }
 
         if (mode == null){

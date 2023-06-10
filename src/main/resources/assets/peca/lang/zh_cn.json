@@ -1,0 +1,22 @@
+{
+    "peca.info.version": "Player Extend Carpet Addition Mod 版本: %s",
+    "carpet.category.PECA": "PECA",
+
+    "carpet.rule.commandPlayerGroup.name": "启用假人组操作",
+    "carpet.rule.commandPlayerGroup.desc": "启用 /playerGroup 指令",
+
+    "carpet.rule.groupCanBePlayerLogInSpawn.name": "假人组可以假人存在时生成",
+    "carpet.rule.groupCanBePlayerLogInSpawn.desc": "如果应在组里假人已经存在时依旧生成组",
+
+    "carpet.rule.fakePlayerGameModeLockSurvive.name": "锁定假人为生存模式",
+    "carpet.rule.fakePlayerGameModeLockSurvive.desc": "假人将永远为生存模式, 生成假人强制为生存模式",
+
+    "carpet.rule.fakePlayerCanNotPickUpItem.name": "假人无法捡起掉落物",
+    "carpet.rule.fakePlayerCanNotPickUpItem.desc": "判断掉落物碰撞实体, 如果为假人则终止碰撞逻辑",
+
+    "carpet.rule.fakePlayerCanNotAssimilateExp.name": "假人无法吸收经验球",
+    "carpet.rule.fakePlayerCanNotAssimilateExp.desc": "判断经验球碰撞实体, 如果为假人则终止碰撞逻辑",
+
+    "carpet.rule.fakePlayerCanNotSurroundExp.name": "假人无法环绕经验球",
+    "carpet.rule.fakePlayerCanNotSurroundExp.desc": "判断经验球目标, 如果为假人则终止逻辑 (该操作未同步客户端, 将导致客户端渲染错误)"
+}

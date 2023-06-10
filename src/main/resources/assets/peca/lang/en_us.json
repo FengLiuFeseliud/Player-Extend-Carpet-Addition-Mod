@@ -1,4 +1,12 @@
 {
+    "peca.info.version": "Player Extend Carpet Addition Mod version: %s",
+
     "carpet.category.PECA": "PECA",
-    "carpet.rule.playerReset.desc": "log back in player"
+
+    "carpet.rule.commandPlayerGroup.desc": "Enables /playerGroup command",
+    "carpet.rule.groupCanBePlayerLogInSpawn.desc": "PlayerGroup can be player log in spawn",
+    "carpet.rule.fakePlayerGameModeLockSurvive.desc": "Player game mode lock survive",
+    "carpet.rule.fakePlayerCanNotPickUpItem.desc": "Player can not pick up item entity",
+    "carpet.rule.fakePlayerCanNotAssimilateExp.desc": "Player can not assimilate exp entity",
+    "carpet.rule.fakePlayerCanNotSurroundExp.desc": "Player can not surround exp entity"
 }

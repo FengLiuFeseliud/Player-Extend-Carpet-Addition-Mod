@@ -26,23 +26,34 @@ public class PlayerGroup implements IPlayerGroup {
 
     public PlayerGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos) throws CommandSyntaxException {
         this.groupName = StringArgumentType.getString(context, "name");
-        GameMode mode = getArgOrDefault(() -> GameModeArgumentType.getGameMode(context, "gamemode"), null);
+        if (!PlayerUtil.canSpawnGroup(this.groupName, context)){
+            return;
+        }
 
+        PlayerGroup.groups.add(this);
+        GameMode mode = getArgOrDefault(() -> GameModeArgumentType.getGameMode(context, "gamemode"), null);
         if (formationPos == null){
             Vec3d pos = getArgOrDefault(() -> Vec3ArgumentType.getVec3(context, ""), context.getSource().getPosition());
             for (int index = 1; index < IntegerArgumentType.getInteger(context, "amount") + 1; index++){
-                this.add(PlayerUtil.spawn(this.groupName + "_" + index, pos, mode, context));
+                EntityPlayerMPFake player = PlayerUtil.spawn(this.groupName + "_" + index, pos, mode, context);
+                if (player == null){
+                    continue;
+                }
+                this.add(player);
             }
-        } else {
-            for (int index = 1; index < IntegerArgumentType.getInteger(context, "amount") + 1; index++){
-                this.add(PlayerUtil.spawn(this.groupName + "_" + index, formationPos[index-1], mode, context));
-            }
+            return;
         }
-        PlayerGroup.groups.add(this);
+
+        for (int index = 1; index < IntegerArgumentType.getInteger(context, "amount") + 1; index++){
+            EntityPlayerMPFake player = PlayerUtil.spawn(this.groupName + "_" + index, formationPos[index-1], mode, context);
+            if (player == null){
+                continue;
+            }
+            this.add(player);
+        }
     }
 
-    interface Arg<T>
-    {
+    interface Arg<T> {
         T get() throws CommandSyntaxException;
     }
 

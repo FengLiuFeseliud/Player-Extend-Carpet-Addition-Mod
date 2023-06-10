@@ -9,7 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.CommandDispatcher;
 import fengliu.peca.command.PlayerGroupCommand;
 import net.fabricmc.api.ModInitializer;
-
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.ServerCommandSource;
 import org.apache.commons.io.IOUtils;
@@ -21,12 +21,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
-public class PecaServer implements ModInitializer, CarpetExtension {
+public class PecaMod implements ModInitializer, CarpetExtension {
     public static final String MOD_ID = "peca";
+    public static String MOD_VERSION;
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     static {
-        CarpetServer.manageExtension(new PecaServer());
+        CarpetServer.manageExtension(new PecaMod());
+        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> MOD_VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
     }
 
     @Override

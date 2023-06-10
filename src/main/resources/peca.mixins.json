@@ -3,7 +3,10 @@
 	"package": "fengliu.peca.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-
+		"ExperienceOrbEntityMixin",
+		"ItemEntityMixin",
+		"ServerPlayerInteractionManagerMixin",
+		"SettingsManagerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

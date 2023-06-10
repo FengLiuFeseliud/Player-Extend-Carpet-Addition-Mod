@@ -3,6 +3,7 @@ package fengliu.peca.command;
 import carpet.helpers.EntityPlayerActionPack;
 import carpet.helpers.EntityPlayerActionPack.Action;
 import carpet.helpers.EntityPlayerActionPack.ActionType;
+import carpet.utils.CommandHelper;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -12,6 +13,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import fengliu.peca.PecaSettings;
 import fengliu.peca.player.PlayerGroup;
 import fengliu.peca.player.PlayerGroup.FormationType;
 import net.minecraft.command.argument.GameModeArgumentType;
@@ -26,7 +28,8 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class PlayerGroupCommand {
-    private static final LiteralArgumentBuilder<ServerCommandSource> PlayerGroupCmd = literal("playerGroup");
+    private static final LiteralArgumentBuilder<ServerCommandSource> PlayerGroupCmd = literal("playerGroup")
+        .requires((player) -> CommandHelper.canUseCommand(player, PecaSettings.commandPlayerGroup));
 
     public static void registerAll(CommandDispatcher<ServerCommandSource> dispatcher){
         PlayerGroupCmd.then(argument("name", StringArgumentType.string())

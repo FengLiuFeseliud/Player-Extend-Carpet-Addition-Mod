@@ -5,18 +5,18 @@
 	"name": "Player Extend Carpet Addition",
 	"description": "",
 	"authors": [
-		"Me!"
+		"FengLiuFeseliud"
 	],
 	"contact": {
 		"homepage": "https://github.com/FengLiuFeseliud/Player-Extend-Carpet-Addition-Mod",
 		"sources": "https://github.com/FengLiuFeseliud/Player-Extend-Carpet-Addition-Mod"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/peca/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"fengliu.peca.PecaServer"
+			"fengliu.peca.PecaMod"
 		]
 	},
 	"mixins": [
