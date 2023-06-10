@@ -24,6 +24,7 @@ import net.minecraft.util.math.Direction;
 import java.util.function.Consumer;
 
 import static net.minecraft.server.command.CommandManager.*;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public class PlayerGroupCommand {
     private static final LiteralArgumentBuilder<ServerCommandSource> PlayerGroupCommand = literal("playerGroup");
@@ -31,10 +32,14 @@ public class PlayerGroupCommand {
     public static void registerAll(CommandDispatcher<ServerCommandSource> dispatcher){
         PlayerGroupCommand.then(argument("name", StringArgumentType.string())
             .then(literal("spawn").then(argument("amount", IntegerArgumentType.integer()).executes(PlayerGroup::createGroup)
-                .then(makeFormationCommand())
+                .then(makeFormationCommands())
                 .then(literal("in").then(argument("gamemode", GameModeArgumentType.gameMode())
                     .requires(source -> source.hasPermissionLevel(2)).executes(PlayerGroup::createGroup)
-                    .then(makeFormationCommand())))))
+                    .then(makeFormationCommands())))
+                .then(literal("at").then(argument("position", Vec3ArgumentType.vec3()).executes(PlayerGroup::createGroup)
+                    .then(makeFormationCommands())
+                    .then(literal("in").then(argument("gamemode", GameModeArgumentType.gameMode()).executes(PlayerGroup::createGroup)
+                        .then(makeFormationCommands())))))))
 
             .then(literal("kill").executes(context -> {
                 PlayerGroup group = PlayerGroup.getGroup(StringArgumentType.getString(context, "name"));
@@ -125,19 +130,44 @@ public class PlayerGroupCommand {
                 .executes(context -> playerGroupManipulation(context, ap -> ap.drop(IntegerArgumentType.getInteger(context, "slot"), dropAll))));
     }
 
-    private static LiteralArgumentBuilder<ServerCommandSource> makeFormationDirectionCommand(Direction direction){
-        return literal(direction.getName())
-            .then(literal("row").executes(context -> PlayerGroup.createGroup(context, FormationType.ROW.getFormationPos(context, direction))))
-            .then(literal("column").executes(context -> PlayerGroup.createGroup(context, FormationType.COLUMN.getFormationPos(context, direction))))
-            .then(literal("quadrangle").then(argument("row", IntegerArgumentType.integer())
-                .executes(context -> PlayerGroup.createGroup(context, FormationType.QUADRANGLE.getFormationPos(context, direction, IntegerArgumentType.getInteger(context, "row"))))));
+    private static LiteralArgumentBuilder<ServerCommandSource> makeFormationDirectionCommand(FormationType type, Direction direction){
+        return literal(direction.getName()).executes(context -> PlayerGroup.createGroup(context, type.getFormationPos(context, direction)));
     }
 
-    private static LiteralArgumentBuilder<ServerCommandSource> makeFormationCommand(){
+    private static LiteralArgumentBuilder<ServerCommandSource> makeFormationIntersticeCommand(FormationType type){
+        return literal("interstice").then(argument("length", IntegerArgumentType.integer())
+            .executes(context -> PlayerGroup.createGroup(context, type.getFormationPos(context)))
+            .then(makeFormationDirectionCommand(type, Direction.NORTH))
+            .then(makeFormationDirectionCommand(type, Direction.SOUTH))
+            .then(makeFormationDirectionCommand(type, Direction.EAST))
+            .then(makeFormationDirectionCommand(type, Direction.WEST)));
+    }
+
+    private static LiteralArgumentBuilder<ServerCommandSource> makeFormationCommand(FormationType type){
+        return literal(type.name).executes(context -> PlayerGroup.createGroup(context, type.getFormationPos(context)))
+            .then(makeFormationIntersticeCommand(type))
+            .then(makeFormationDirectionCommand(type, Direction.NORTH))
+            .then(makeFormationDirectionCommand(type, Direction.SOUTH))
+            .then(makeFormationDirectionCommand(type, Direction.EAST))
+            .then(makeFormationDirectionCommand(type, Direction.WEST));
+    }
+
+    private static LiteralArgumentBuilder<ServerCommandSource> makeFormationRowCommand(FormationType type){
+        return literal(type.name).then(argument("row", IntegerArgumentType.integer())
+            .executes(context -> PlayerGroup.createGroup(context, type.getFormationPos(context)))
+            .then(makeFormationIntersticeCommand(type))
+            .then(makeFormationDirectionCommand(type, Direction.NORTH))
+            .then(makeFormationDirectionCommand(type, Direction.SOUTH))
+            .then(makeFormationDirectionCommand(type, Direction.EAST))
+            .then(makeFormationDirectionCommand(type, Direction.WEST)));
+    }
+
+    private static LiteralArgumentBuilder<ServerCommandSource> makeFormationCommands(){
         return literal("formation")
-            .then(makeFormationDirectionCommand(Direction.NORTH))
-            .then(makeFormationDirectionCommand(Direction.SOUTH))
-            .then(makeFormationDirectionCommand(Direction.EAST))
-            .then(makeFormationDirectionCommand(Direction.WEST));
+            .then(makeFormationCommand(FormationType.COLUMN))
+            .then(makeFormationRowCommand(FormationType.COLUMN_FOLD))
+            .then(makeFormationCommand(FormationType.ROW))
+            .then(makeFormationRowCommand(FormationType.ROW_FOLD))
+            .then(makeFormationRowCommand(FormationType.QUADRANGLE));
     }
 }
