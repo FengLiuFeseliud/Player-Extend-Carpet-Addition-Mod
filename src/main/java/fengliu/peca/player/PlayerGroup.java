@@ -8,7 +8,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fengliu.peca.util.PlayerUtil;
 import net.minecraft.command.argument.GameModeArgumentType;
-import net.minecraft.command.argument.RotationArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
@@ -210,7 +209,7 @@ public class PlayerGroup implements IPlayerGroup {
                 return null;
             }
 
-            return this.getFormationPos(context, Direction.getLookDirectionForAxis(player, Direction.Axis.X));
+            return this.getFormationPos(context, Direction.getLookDirectionForAxis(player, Direction.Axis.Z));
         }
     }
 }
