@@ -11,6 +11,9 @@
     "carpet.rule.fakePlayerGameModeLockSurvive.name": "锁定假人为生存模式",
     "carpet.rule.fakePlayerGameModeLockSurvive.desc": "假人将永远为生存模式, 生成假人强制为生存模式",
 
+    "carpet.rule.fakePlayerCanWalkOnFluid.name": "假人可以在液体上行走",
+    "carpet.rule.fakePlayerCanWalkOnFluid.desc": "判断如果为假人, canWalkOnFluid 将返回 true",
+
     "carpet.rule.fakePlayerCanNotPickUpItem.name": "假人无法捡起掉落物",
     "carpet.rule.fakePlayerCanNotPickUpItem.desc": "判断掉落物碰撞实体, 如果为假人则终止碰撞逻辑",
 
@@ -18,5 +21,50 @@
     "carpet.rule.fakePlayerCanNotAssimilateExp.desc": "判断经验球碰撞实体, 如果为假人则终止碰撞逻辑",
 
     "carpet.rule.fakePlayerCanNotSurroundExp.name": "假人无法环绕经验球",
-    "carpet.rule.fakePlayerCanNotSurroundExp.desc": "判断经验球目标, 如果为假人则终止逻辑 (该操作未同步客户端, 将导致客户端渲染错误)"
+    "carpet.rule.fakePlayerCanNotSurroundExp.desc": "判断经验球目标, 如果为假人则终止逻辑 (该操作未同步客户端, 将导致客户端渲染错误)",
+
+    "carpet.rule.fakePlayerImmuneInFireDamage.name": "假人免疫火焰碰撞伤害",
+    "carpet.rule.fakePlayerImmuneInFireDamage.desc": "假人免疫碰到火焰伤害",
+
+    "carpet.rule.fakePlayerImmuneOnFireDamage.name": "假人免疫火焰持续伤害",
+    "carpet.rule.fakePlayerImmuneOnFireDamage.desc": "假人免疫着火后的后续持续伤害",
+
+    "carpet.rule.fakePlayerImmuneLavaDamage.name": "假人免疫岩浆碰撞伤害",
+    "carpet.rule.fakePlayerImmuneLavaDamage.desc": "假人免疫碰到岩浆伤害",
+
+    "carpet.rule.fakePlayerImmunePlayerDamage.name": "假人免疫来自玩家的伤害",
+    "carpet.rule.fakePlayerImmunePlayerDamage.desc": "假人免疫来自玩家的伤害, 防止手贱",
+
+    "carpet.rule.fakePlayerImmuneExplosionDamage.name": "假人免疫爆炸伤害",
+    "carpet.rule.fakePlayerImmuneExplosionDamage.desc": "假人免疫爆炸伤害",
+
+    "carpet.rule.fakePlayerImmuneCrammingDamage.name": "假人免疫实体挤压伤害",
+    "carpet.rule.fakePlayerImmuneCrammingDamage.desc": "假人免疫实体挤压伤害",
+
+    "carpet.rule.fakePlayerImmuneDamage.name": "假人无敌",
+    "carpet.rule.fakePlayerImmuneDamage.desc": "假人免疫所有伤害",
+
+    "carpet.rule.fakePlayerNotDie.name": "假人不会死亡",
+    "carpet.rule.fakePlayerNotDie.desc": "假人锁血",
+
+    "carpet.rule.fakePlayerNotHunger.name": "假人不会饥饿",
+    "carpet.rule.fakePlayerNotHunger.desc": "判断如果为假人, 将 foodTickTimer 设置为 0",
+
+    "carpet.rule.fakePlayerNotHypoxic.name": "假人不会缺氧",
+    "carpet.rule.fakePlayerNotHypoxic.desc": "判断如果为假人, canBreatheInWater 将返回 true",
+
+    "carpet.rule.fakePlayerNotBeCaughtInPowderSnow.name": "假人不会陷入细雪",
+    "carpet.rule.fakePlayerNotBeCaughtInPowderSnow.desc": "判断如果为假人, canWalkOnPowderSnow 将返回 true",
+
+    "carpet.rule.fakePlayerWillNotAffectedByBubbleColumn.name": "假人不会受气泡柱影响",
+    "carpet.rule.fakePlayerWillNotAffectedByBubbleColumn.desc": "判断如果为假人, 终止气泡柱碰撞逻辑",
+
+    "carpet.rule.fakePlayerDropAllExp.name": "假人掉落所有经验",
+    "carpet.rule.fakePlayerDropAllExp.desc": "假人掉落所有经验并且没有上限",
+
+    "carpet.rule.fakePlayerDropExpNoUpperLimit.name": "取消假人掉落经验上限",
+    "carpet.rule.fakePlayerDropExpNoUpperLimit.desc": "取消假人掉落经验上限, 掉落经验计算依旧与原版一致",
+
+    "carpet.rule.fakePlayerKeepInventory.name": "假人死亡不掉落",
+    "carpet.rule.fakePlayerKeepInventory.desc": "判断如果为假人, 不掉落库存"
 }

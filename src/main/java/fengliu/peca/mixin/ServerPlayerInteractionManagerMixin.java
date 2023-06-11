@@ -20,7 +20,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "changeGameMode", at = @At("HEAD"), cancellable = true)
     public void fakePlayerGameModeLockSurvive(GameMode gameMode, CallbackInfoReturnable<Boolean> cir){
-        if (this.player instanceof EntityPlayerMPFake && PecaSettings.fakePlayerGameModeLockSurvive) {
+        if (this.player instanceof EntityPlayerMPFake && PecaSettings.fakePlayerGameModeLockSurvive && gameMode != GameMode.SURVIVAL) {
             this.player.getAbilities().flying = false;
             this.changeGameMode(GameMode.SURVIVAL);
             cir.cancel();
