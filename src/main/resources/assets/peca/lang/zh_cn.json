@@ -5,6 +5,9 @@
     "carpet.rule.commandPlayerGroup.name": "启用假人组操作",
     "carpet.rule.commandPlayerGroup.desc": "启用 /playerGroup 指令",
 
+    "carpet.rule.commandPlayerAuto.name": "启用假人自动操作",
+    "carpet.rule.commandPlayerAuto.desc": "启用 /playerAuto 指令",
+
     "carpet.rule.groupCanBePlayerLogInSpawn.name": "假人组可以假人存在时生成",
     "carpet.rule.groupCanBePlayerLogInSpawn.desc": "如果应在组里假人已经存在时依旧生成组",
 

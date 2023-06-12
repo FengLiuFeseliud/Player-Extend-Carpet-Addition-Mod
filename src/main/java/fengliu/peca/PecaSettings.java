@@ -14,6 +14,9 @@ public class PecaSettings {
     @Rule(categories = {PECA, COMMAND})
     public static String commandPlayerGroup = "ops";
 
+    @Rule(categories = {PECA, COMMAND})
+    public static String commandPlayerAuto = "ops";
+
     @Rule(categories = {PECA})
     public static boolean fakePlayerGameModeLockSurvive = false;
 

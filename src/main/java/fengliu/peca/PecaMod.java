@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.CommandDispatcher;
+import fengliu.peca.command.PlayerAutoCommand;
 import fengliu.peca.command.PlayerGroupCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -60,6 +61,7 @@ public class PecaMod implements ModInitializer, CarpetExtension {
     @Override
     public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandBuildContext) {
         PlayerGroupCommand.registerAll(dispatcher);
+        PlayerAutoCommand.registerAll(dispatcher, commandBuildContext);
     }
 
     @Override

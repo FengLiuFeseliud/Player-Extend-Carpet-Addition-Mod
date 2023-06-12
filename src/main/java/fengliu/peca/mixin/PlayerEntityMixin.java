@@ -2,6 +2,7 @@ package fengliu.peca.mixin;
 
 import carpet.patches.EntityPlayerMPFake;
 import fengliu.peca.PecaSettings;
+import fengliu.peca.player.IPlayerAuto;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -72,6 +73,13 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         if ((PlayerEntity) (Object) this instanceof EntityPlayerMPFake && PecaSettings.fakePlayerKeepInventory){
             super.dropInventory();
             ci.cancel();
+        }
+    }
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    public void fakePlayerRunAutoTask(CallbackInfo ci){
+        if ((PlayerEntity) (Object) this instanceof EntityPlayerMPFake){
+            ((IPlayerAuto) this).runAutoTask();
         }
     }
 }

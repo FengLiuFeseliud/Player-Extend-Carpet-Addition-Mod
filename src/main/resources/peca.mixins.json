@@ -5,6 +5,7 @@
     "mixins": [
         "BubbleColumnBlockMixin",
         "ExperienceOrbEntityMixin",
+        "FakePlayerAutoMixin",
         "HungerManagerMixin",
         "ItemEntityMixin",
         "LivingEntityMixin",
