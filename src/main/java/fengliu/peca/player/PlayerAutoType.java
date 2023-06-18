@@ -90,22 +90,23 @@ public enum PlayerAutoType {
         }
 
         World world = player.getWorld();
-        int index = 0;
-        while (index < 64){
+        ItemStack stack = ItemStack.EMPTY;
+
+        while (true){
             Optional<CraftingRecipe> optional = player.getServer().getRecipeManager().getFirstMatch(RecipeType.CRAFTING, fakeCraftingInventory, world);
             if (!optional.isPresent()){
-                break;
+                return;
             }
 
-            player.dropItem(optional.get().craft(fakeCraftingInventory, world.getRegistryManager()), false, false);
+            ItemStack craftStack = optional.get().craft(fakeCraftingInventory, world.getRegistryManager());
+            if (!craftStack.isOf(stack.getItem()) && !stack.isEmpty()){
+                return;
+            }
+            stack = craftStack;
+            player.dropItem(craftStack, false, false);
             for(int craftingIndex = 0; craftingIndex < fakeCraftingInventory.size(); craftingIndex++){
-                fakeCraftingInventory.getStack(index).decrement(1);
+                fakeCraftingInventory.getStack(craftingIndex).decrement(1);
             }
-            index++;
-        }
-
-        for(int craftingIndex = 0; craftingIndex < fakeCraftingInventory.size(); craftingIndex++){
-            player.dropItem(fakeCraftingInventory.getStack(index), false, false);
         }
 
     }, (context, player) -> {
