@@ -2,6 +2,7 @@ package fengliu.peca.command;
 
 import carpet.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import fengliu.peca.PecaSettings;
@@ -33,7 +34,11 @@ public class PlayerAutoCommand {
                                                                 .then(argument("slot6", ItemStackArgumentType.itemStack(commandBuildContext))
                                                                         .then(argument("slot7", ItemStackArgumentType.itemStack(commandBuildContext))
                                                                                 .then(argument("slot8", ItemStackArgumentType.itemStack(commandBuildContext))
-                                                                                        .executes(context -> IPlayerAuto.setPlayerAutoType(context, PlayerAutoType.CRAFT)))))))))))));
+                                                                                        .executes(context -> IPlayerAuto.setPlayerAutoType(context, PlayerAutoType.CRAFT))))))))))))
+            .then(literal("trading")
+                .executes(context -> IPlayerAuto.setPlayerAutoType(context, PlayerAutoType.TRADING))
+                .then(literal("from").then(argument("start", IntegerArgumentType.integer(1)).executes(context -> IPlayerAuto.setPlayerAutoType(context, PlayerAutoType.TRADING))
+                .then(literal("to").then(argument("end", IntegerArgumentType.integer(1)).executes(context -> IPlayerAuto.setPlayerAutoType(context, PlayerAutoType.TRADING))))))));
 
         dispatcher.register(PlayerAutoCmd);
     }

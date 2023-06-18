@@ -9,6 +9,7 @@
     "HungerManagerMixin",
     "ItemEntityMixin",
     "LivingEntityMixin",
+    "MerchantScreenHandlerMixin",
     "PlayerEntityMixin",
     "PowderSnowBlockMixin",
     "ServerPlayerInteractionManagerMixin",

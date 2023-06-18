@@ -4,6 +4,8 @@ import carpet.patches.EntityPlayerMPFake;
 import com.mojang.brigadier.context.CommandContext;
 import fengliu.peca.PecaSettings;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec2f;
@@ -79,5 +81,26 @@ public class PlayerUtil {
         }
 
         return spawn(name, pos, mode, context);
+    }
+
+    public static int getItemSlot(ItemStack stack, PlayerInventory inventory){
+        for (int slotIndex = 0; slotIndex < inventory.size(); slotIndex++){
+            if (!inventory.getStack(slotIndex).isOf(stack.getItem())){
+                continue;
+            }
+            return slotIndex;
+        }
+        return -1;
+    }
+
+    public static int getItemSlotAndCount(ItemStack stack, PlayerInventory inventory){
+        for (int slotIndex = 0; slotIndex < inventory.size(); slotIndex++){
+            ItemStack slotStack = inventory.getStack(slotIndex);
+            if (!slotStack.isOf(stack.getItem()) || slotStack.getCount() < stack.getCount()){
+                continue;
+            }
+            return slotIndex;
+        }
+        return -1;
     }
 }

@@ -5,7 +5,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fengliu.peca.util.PlayerUtil;
 import net.minecraft.command.argument.GameModeArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -18,13 +17,15 @@ import net.minecraft.world.GameMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fengliu.peca.util.CommandUtil.getArgOrDefault;
+
 public class PlayerGroup implements IPlayerGroup {
     private static final List<PlayerGroup> groups = new ArrayList<>();
     public final String groupName;
     protected int groupAmount = 0;
     private final List<EntityPlayerMPFake> bots = new ArrayList<>();
 
-    public PlayerGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos) throws CommandSyntaxException {
+    public PlayerGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos){
         this.groupName = StringArgumentType.getString(context, "name");
         if (!PlayerUtil.canSpawnGroup(this.groupName, context)){
             return;
@@ -53,24 +54,12 @@ public class PlayerGroup implements IPlayerGroup {
         }
     }
 
-    interface Arg<T> {
-        T get() throws CommandSyntaxException;
-    }
-
-    private static <T> T getArgOrDefault(Arg<T> arg, T defaultValue) throws CommandSyntaxException{
-        try{
-            return arg.get();
-        } catch (IllegalArgumentException e){
-            return defaultValue;
-        }
-    }
-
-    public static int createGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos) throws CommandSyntaxException {
+    public static int createGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos){
         new PlayerGroup(context, formationPos);
         return Command.SINGLE_SUCCESS;
     }
 
-    public static int createGroup(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    public static int createGroup(CommandContext<ServerCommandSource> context){
         new PlayerGroup(context, null);
         return Command.SINGLE_SUCCESS;
     }
@@ -204,7 +193,7 @@ public class PlayerGroup implements IPlayerGroup {
             this.formation = formation;
         }
 
-        public Vec3d[] getFormationPos(CommandContext<ServerCommandSource> context, Direction direction) throws CommandSyntaxException {
+        public Vec3d[] getFormationPos(CommandContext<ServerCommandSource> context, Direction direction){
             int amount = IntegerArgumentType.getInteger(context, "amount");
             return this.formation.get(amount,
                 getArgOrDefault(() -> Vec3ArgumentType.getVec3(context, "position"), context.getSource().getPosition()),
@@ -214,7 +203,7 @@ public class PlayerGroup implements IPlayerGroup {
                 new Vec3d[amount]);
         }
 
-        public Vec3d[] getFormationPos(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        public Vec3d[] getFormationPos(CommandContext<ServerCommandSource> context){
             PlayerEntity player = context.getSource().getPlayer();
             if (player == null){
                 return null;

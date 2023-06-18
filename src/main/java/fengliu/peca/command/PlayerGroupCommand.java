@@ -12,7 +12,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fengliu.peca.PecaSettings;
 import fengliu.peca.player.PlayerGroup;
 import fengliu.peca.player.PlayerGroup.FormationType;
@@ -24,6 +23,7 @@ import net.minecraft.util.math.Direction;
 
 import java.util.function.Consumer;
 
+import static fengliu.peca.util.CommandUtil.getArgOrDefault;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -94,18 +94,6 @@ public class PlayerGroupCommand {
                 .then(makeManipulationCommand("right", ap -> ap.setStrafing(-1))))
         );
         dispatcher.register(PlayerGroupCmd);
-    }
-
-    interface Arg<T> {
-        T get() throws CommandSyntaxException;
-    }
-
-    private static <T> T getArgOrDefault(Arg<T> arg, T defaultValue) {
-        try{
-            return arg.get();
-        } catch (IllegalArgumentException | CommandSyntaxException e){
-            return defaultValue;
-        }
     }
 
     private static int stop(CommandContext<ServerCommandSource> context){
