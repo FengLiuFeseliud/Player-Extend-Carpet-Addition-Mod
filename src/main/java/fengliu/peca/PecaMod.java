@@ -7,11 +7,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.CommandDispatcher;
+import fengliu.peca.command.PecaCommand;
 import fengliu.peca.command.PlayerAutoCommand;
 import fengliu.peca.command.PlayerGroupCommand;
+import fengliu.peca.command.PlayerManageCommand;
+import fengliu.peca.player.sql.PlayerSql;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -19,16 +23,23 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
 public class PecaMod implements ModInitializer, CarpetExtension {
     public static final String MOD_ID = "peca";
+    public static Path MC_PATH;
     public static String MOD_VERSION;
+    public static final String dbPath;
+    public static final String dbUrl;
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     static {
         CarpetServer.manageExtension(new PecaMod());
+        MC_PATH = FabricLoader.getInstance().getGameDir();
+        dbPath = MC_PATH + "/pecaPlayer.db";
+        dbUrl = "jdbc:sqlite:" + dbPath;
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> MOD_VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
     }
 
@@ -62,10 +73,16 @@ public class PecaMod implements ModInitializer, CarpetExtension {
     public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandBuildContext) {
         PlayerGroupCommand.registerAll(dispatcher);
         PlayerAutoCommand.registerAll(dispatcher, commandBuildContext);
+        PlayerManageCommand.registerAll(dispatcher, commandBuildContext);
+        PecaCommand.registerAll(dispatcher, commandBuildContext);
     }
 
     @Override
     public void onInitialize() {
+    }
 
+    @Override
+    public void onServerLoaded(MinecraftServer server) {
+        PlayerSql.createTable();
     }
 }

@@ -5,6 +5,7 @@
 
     "carpet.rule.commandPlayerGroup.desc": "Enables /playerGroup command",
     "carpet.rule.commandPlayerAuto.desc": "Enables /playerAuto command",
+    "carpet.rule.commandPlayerManage.desc": "Enables /playerManage command",
     "carpet.rule.groupCanBePlayerLogInSpawn.desc": "PlayerGroup can be player log in spawn",
     "carpet.rule.fakePlayerGameModeLockSurvive.desc": "Player game mode lock survive",
     "carpet.rule.fakePlayerCanWalkOnFluid.desc": "...",

@@ -8,6 +8,9 @@
     "carpet.rule.commandPlayerAuto.name": "启用假人自动操作",
     "carpet.rule.commandPlayerAuto.desc": "启用 /playerAuto 指令",
 
+    "carpet.rule.commandPlayerManage.name": "启用假人管理操作",
+    "carpet.rule.commandPlayerManage.desc": "启用 /playerManage 指令",
+
     "carpet.rule.groupCanBePlayerLogInSpawn.name": "假人组可以假人存在时生成",
     "carpet.rule.groupCanBePlayerLogInSpawn.desc": "如果应在组里假人已经存在时依旧生成组",
 
@@ -69,5 +72,41 @@
     "carpet.rule.fakePlayerDropExpNoUpperLimit.desc": "取消假人掉落经验上限, 掉落经验计算依旧与原版一致",
 
     "carpet.rule.fakePlayerKeepInventory.name": "假人死亡不掉落",
-    "carpet.rule.fakePlayerKeepInventory.desc": "判断如果为假人, 不掉落库存"
+    "carpet.rule.fakePlayerKeepInventory.desc": "判断如果为假人, 不掉落库存",
+
+    "peca.info.page.count": "§7§l=========== %s页§7§l===========",
+    "peca.info.page.prev": "§7[上一页] ",
+    "peca.info.page.next": "§7[下一页] ",
+    "peca.info.page.to": "§7[跳转至] ",
+    "peca.info.command.player.logged": "§a上线 ",
+    "peca.info.command.player.not.fake": "§8真人上线 ",
+    "peca.info.command.player.not.logged": "§c已下线 ",
+    "peca.info.command.player.spawn": "§3[召唤] ",
+    "peca.info.command.player.kill": "§3[杀死] ",
+    "peca.info.command.player.info": "§3[详细] ",
+    "peca.info.command.player.delete": "§3[删除] ",
+    "peca.info.command.player.purpose": "§6用途: %s ",
+    "peca.info.command.player.name": "§7§l=========== %s§7§l===========",
+    "peca.info.command.player.dimension": "§7假人所在维度: %s ",
+    "peca.info.command.player.pos": "§7假人所在坐标 x: %s y: %s z: %s",
+    "peca.info.command.player.pos.overworld": "§7假人所在对应主世界坐标 x: %s y: %s z: %s",
+    "peca.info.command.player.yaw": "§7假人 yaw: %s",
+    "peca.info.command.player.pitch": "§7假人 pitch: %s",
+    "peca.info.command.player.gamemode": "§7假人游戏模式: %s",
+    "peca.info.command.player.id": "§7假人数据库索引 id: %s",
+    "peca.info.command.player.create.player": "§7创建者: %s",
+    "peca.info.command.player.create.player.uuid": "§7创建者 uuid: %s",
+    "peca.info.command.player.create.time": "§7创建时间: %s",
+    "peca.info.command.player.data.info": "(此处数据存于数据库, 查看实吋数据使用 \"/playerManage [Player Name] info\")",
+
+    "peca.info.command.player.find.empty": "没有搜索到假人数据...",
+    "peca.info.command.player.save": "成功保存假人 %s 的数据!",
+    "peca.info.command.player.delete.info": "成功删除自增 id 为 %s 的假人数据!",
+
+    "peca.info.command.error.not.bot.purpose": "请填写假人用途!",
+    "peca.info.command.error.player.delete": "删除自增 id 为 %s 的假人数据失败...",
+
+    "peca.info.sql.not.exist.table.PLAYER": "数据库不存在 PLAYER 表, 自动创建",
+
+    "peca.info.sql.error.exist.table.PLAYER": "数据库无法创建 PLAYER 表, 请尝试删除 mc 根目录 'pecaPlayer.db' 文件"
 }
