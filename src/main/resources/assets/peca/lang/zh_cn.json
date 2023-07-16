@@ -85,6 +85,9 @@
     "peca.info.command.player.kill": "§3[杀死] ",
     "peca.info.command.player.info": "§3[详细] ",
     "peca.info.command.player.delete": "§3[删除] ",
+    "peca.info.command.player.execute": "§3[执行操作] ",
+    "peca.info.command.player.stop": "§3[停止] ",
+    "peca.info.command.player.spawn.suggest": "§3[在文本框填充召唤指令] ",
     "peca.info.command.player.purpose": "§6用途: %s ",
     "peca.info.command.player.name": "§7§l=========== %s§7§l===========",
     "peca.info.command.player.dimension": "§7假人所在维度: %s ",
@@ -97,6 +100,10 @@
     "peca.info.command.player.create.player": "§7创建者: %s",
     "peca.info.command.player.create.player.uuid": "§7创建者 uuid: %s",
     "peca.info.command.player.create.time": "§7创建时间: %s",
+    "peca.info.command.player.last.modified.player": "§7最后修改者: %s",
+    "peca.info.command.player.last.modified.player.uuid": "§7最后修改者 uuid: %s",
+    "peca.info.command.player.last.modified.time": "§7最后修改时间: %s",
+    "peca.info.command.player.execute.info": "§7假人执行操作: %s",
     "peca.info.command.player.data.info": "(此处数据存于数据库, 查看实吋数据使用 \"/playerManage [Player Name] info\")",
 
     "peca.info.command.player.find.empty": "没有搜索到假人数据...",
@@ -105,6 +112,11 @@
 
     "peca.info.command.error.not.bot.purpose": "请填写假人用途!",
     "peca.info.command.error.player.delete": "删除自增 id 为 %s 的假人数据失败...",
+    "peca.info.command.error.execute.add.starts": "假人执行操作只支持添加 \"/player\" 指令",
+    "peca.info.command.error.execute.add": "添加假人执行操作失败...",
+    "peca.info.command.error.execute.del": "删除假人执行操作失败...",
+    "peca.info.command.error.execute.set": "修改假人执行操作失败...",
+    "peca.info.command.error.execute.clear": "清空假人执行操作失败...",
 
     "peca.info.sql.not.exist.table.PLAYER": "数据库不存在 PLAYER 表, 自动创建",
 
