@@ -3,9 +3,11 @@ package fengliu.peca.util;
 import carpet.patches.EntityPlayerMPFake;
 import com.mojang.brigadier.context.CommandContext;
 import fengliu.peca.PecaSettings;
+import fengliu.peca.player.PlayerGroup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec2f;
@@ -16,9 +18,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PlayerUtil {
 
-    public static boolean canSpawn(String name, CommandContext<ServerCommandSource> context){
+    public static boolean canSpawn(String name, PlayerManager playerManager){
         AtomicBoolean canSpawn = new AtomicBoolean(true);
-        context.getSource().getServer().getPlayerManager().getPlayerList().forEach(player -> {
+        playerManager.getPlayerList().forEach(player -> {
             if (player.getName().getString().equals(name)){
                 canSpawn.set(false);
             }
@@ -26,9 +28,17 @@ public class PlayerUtil {
         return canSpawn.get();
     }
 
+    public static boolean canSpawn(String name, CommandContext<ServerCommandSource> context){
+        return canSpawn(name, context.getSource().getServer().getPlayerManager());
+    }
+
     public static boolean canSpawnGroup(String nameHand, CommandContext<ServerCommandSource> context){
         if (PecaSettings.groupCanBePlayerLogInSpawn){
             return true;
+        }
+
+        if (PlayerGroup.getGroup(nameHand) != null){
+            return false;
         }
 
         AtomicBoolean canSpawn = new AtomicBoolean(true);

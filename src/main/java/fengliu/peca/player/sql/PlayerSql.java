@@ -43,27 +43,27 @@ public class PlayerSql {
 
         @Override
         public String getCreateTableSql() {
-            return """
-                       CREATE TABLE "PLAYER" (
-                            "ID"	INTEGER NOT NULL UNIQUE,
-                            "NAME"	TEXT NOT NULL,
-                            "DIMENSION"	TEXT NOT NULL,
-                            "X"	REAL NOT NULL,
-                            "Y"	REAL NOT NULL,
-                            "Z"	REAL NOT NULL,
-                            "FACING_X"	REAL NOT NULL,
-                            "FACING_Y"	REAL NOT NULL,
-                            "GAME_MODE"	INTEGER NOT NULL,
-                            "FLYING"	BLOB NOT NULL,
-                            "EXECUTE"	TEXT NOT NULL DEFAULT '[]',
-                            "PURPOSE"	TEXT NOT NULL,
-                            "CREATE_TIME"	INTEGER NOT NULL UNIQUE,
-                            "CREATE_PLAYER_UUID"	TEXT NOT NULL,
-                            "LAST_MODIFIED_TIME"	INTEGER NOT NULL,
-                            "LAST_MODIFIED_PLAYER_UUID"	TEXT NOT NULL,
-                            PRIMARY KEY("ID" AUTOINCREMENT)
-                      );
-            """;
+            return String.format("""
+                               CREATE TABLE "%s" (
+                                    "ID"	INTEGER NOT NULL UNIQUE,
+                                    "NAME"	TEXT NOT NULL,
+                                    "DIMENSION"	TEXT NOT NULL,
+                                    "X"	REAL NOT NULL,
+                                    "Y"	REAL NOT NULL,
+                                    "Z"	REAL NOT NULL,
+                                    "FACING_X"	REAL NOT NULL,
+                                    "FACING_Y"	REAL NOT NULL,
+                                    "GAME_MODE"	INTEGER NOT NULL,
+                                    "FLYING"	BLOB NOT NULL,
+                                    "EXECUTE"	TEXT NOT NULL DEFAULT '[]',
+                                    "PURPOSE"	TEXT NOT NULL,
+                                    "CREATE_TIME"	INTEGER NOT NULL UNIQUE,
+                                    "CREATE_PLAYER_UUID"	TEXT NOT NULL,
+                                    "LAST_MODIFIED_TIME"	INTEGER NOT NULL,
+                                    "LAST_MODIFIED_PLAYER_UUID"	TEXT NOT NULL,
+                                    PRIMARY KEY("ID" AUTOINCREMENT)
+                              );
+            """, this.getTableName());
         }
     }
 
@@ -77,9 +77,9 @@ public class PlayerSql {
 
         return (boolean) connection.executeSpl(statement -> {
             statement.execute(String.format("""
-                        INSERT INTO PLAYER (NAME, DIMENSION, X, Y, Z, FACING_X, FACING_Y, GAME_MODE, FLYING, PURPOSE, CREATE_TIME, CREATE_PLAYER_UUID, LAST_MODIFIED_TIME, LAST_MODIFIED_PLAYER_UUID)
+                        INSERT INTO %s (NAME, DIMENSION, X, Y, Z, FACING_X, FACING_Y, GAME_MODE, FLYING, PURPOSE, CREATE_TIME, CREATE_PLAYER_UUID, LAST_MODIFIED_TIME, LAST_MODIFIED_PLAYER_UUID)
                         VALUES ('%s', '%s', %g, %g, %g, %g, %g, '%s', '%s', '%s', '%s', '%s', '%s', '%s');
-            """, data.name(), data.dimension(), data.pos().x, data.pos().y, data.pos().z, data.pitch(), data.yaw(), data.gamemode().getId(), data.flying(), purpose, timestamp, uuid, timestamp, uuid));
+            """, connection.getTableName(), data.name(), data.dimension(), data.pos().x, data.pos().y, data.pos().z, data.pitch(), data.yaw(), data.gamemode().getId(), data.flying(), purpose, timestamp, uuid, timestamp, uuid));
             return true;
         });
     }
@@ -90,13 +90,13 @@ public class PlayerSql {
 
     public static boolean deletePlayer(long id){
         return (boolean) connection.executeSpl(statement -> {
-            statement.execute("DELETE FROM PLAYER WHERE ID=" + id);
+            statement.execute(String.format("DELETE FROM %s WHERE ID=%s", connection.getTableName(), id));
             return true;
         });
     }
 
-    private static List<PlayerData> readPlayer(@Nullable String name, @Nullable GameMode mode, @Nullable Vec3d pos, @Nullable Integer offset, @Nullable RegistryKey<DimensionType> dimensionKey){
-        SqlUtil.BuildSqlHelper sqlHelper = new SqlUtil.BuildSqlHelper("SELECT * FROM PLAYER");
+    private static List<PlayerData> readPlayer(long id, @Nullable String name, @Nullable GameMode mode, @Nullable Vec3d pos, @Nullable Integer offset, @Nullable RegistryKey<DimensionType> dimensionKey){
+        SqlUtil.BuildSqlHelper sqlHelper = new SqlUtil.BuildSqlHelper(String.format("SELECT * FROM %s", connection.getTableName()));
         if (name != null){
             sqlHelper.like("NAME", "'%" + name +"%'");
         }
@@ -121,6 +121,10 @@ public class PlayerSql {
             sqlHelper.and(String.format("DIMENSION='%s'", dimensionKey.getValue()));
         }
 
+        if (id != -1){
+            sqlHelper.and(String.format("ID='%s'", id));
+        }
+
         Object sqlData = connection.executeSpl(statement -> PlayerData.fromResultSet(statement.executeQuery(sqlHelper.build())));
         if (!(sqlData instanceof List<?> dataList)){
             return new ArrayList<>();
@@ -143,6 +147,7 @@ public class PlayerSql {
         }
 
         return readPlayer(
+                -1,
                 CommandUtil.getArgOrDefault(() -> StringArgumentType.getString(context, "name"), null),
                 CommandUtil.getArgOrDefault(() -> GameModeArgumentType.getGameMode(context, "gamemode"), null),
                 CommandUtil.getArgOrDefault(() -> Vec3ArgumentType.getVec3(context, "pos"), null),
@@ -152,12 +157,12 @@ public class PlayerSql {
     }
 
     public static PlayerData readPlayer(long id){
-        return (PlayerData) connection.executeSpl(statement -> PlayerData.fromResultSet(statement.executeQuery("SELECT * FROM PLAYER WHERE ID=" + id)).get(0));
+        return readPlayer(id, null, null, null, null, null).get(0);
     }
 
     public static boolean executeUpdate(long id, JsonArray execute){
         return (boolean) connection.executeSpl(statement -> {
-            statement.execute(String.format("UPDATE PLAYER SET EXECUTE='%s' WHERE ID=%s", execute, id));
+            statement.execute(String.format("UPDATE %s SET EXECUTE='%s' WHERE ID=%s", connection.getTableName(), execute, id));
             return true;
         });
     }

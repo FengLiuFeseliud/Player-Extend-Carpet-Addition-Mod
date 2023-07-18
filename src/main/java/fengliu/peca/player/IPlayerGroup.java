@@ -32,6 +32,14 @@ public interface IPlayerGroup {
         this.getBots().add(bot);
     }
 
+    default void del(EntityPlayerMPFake player){
+        this.getBots().forEach(bot -> {
+            if (bot.getUuid().equals(player.getUuid())){
+                this.getBots().remove(bot);
+            }
+        });
+    }
+
     default void kill(){
         this.getBots().forEach(EntityPlayerMPFake::kill);
     }

@@ -106,9 +106,26 @@
     "peca.info.command.player.execute.info": "§7假人执行操作: %s",
     "peca.info.command.player.data.info": "(此处数据存于数据库, 查看实吋数据使用 \"/playerManage [Player Name] info\")",
 
+    "peca.info.command.player.group.create": "§a已创建 ",
+    "peca.info.command.player.group.not.create": "§c未创建 ",
+    "peca.info.command.player.group.count": "§7假人数: %s",
+    "peca.info.command.player.group.purpose": "§6组用途: %s ",
+    "peca.info.command.player.group.spawn": "§3[召唤组] ",
+    "peca.info.command.player.group.kill": "§3[杀死组] ",
+    "peca.info.command.player.group.info": "§3[详细] ",
+    "peca.info.command.player.group.delete": "§3[删除] ",
+    "peca.info.command.player.group.name": "§7§l=========== %s§7§l===========",
+    "peca.info.command.player.group.player.info.1": "§7假人组成员: §3[",
+    "peca.info.command.player.group.player.info.2": "§3]",
+    "peca.info.command.player.group.id": "§7假人组数据库索引 id: %s",
+    "peca.info.command.player.group.data.info": "(此处数据存于数据库, 查看实吋数据使用 \"/playerGroup [Group Name] info\")",
+
     "peca.info.command.player.find.empty": "没有搜索到假人数据...",
     "peca.info.command.player.save": "成功保存假人 %s 的数据!",
     "peca.info.command.player.delete.info": "成功删除自增 id 为 %s 的假人数据!",
+    "peca.info.command.save.player.group": "成功保存假人组 %s 的数据!",
+    "peca.info.command.delete.player.group.info": "成功删除自增 id 为 %s 的假人组数据!",
+    "peca.info.command.spawn.player.group": "成功生成自增 id 为 %s 的假人组!",
 
     "peca.info.command.error.not.bot.purpose": "请填写假人用途!",
     "peca.info.command.error.player.delete": "删除自增 id 为 %s 的假人数据失败...",
@@ -117,6 +134,11 @@
     "peca.info.command.error.execute.del": "删除假人执行操作失败...",
     "peca.info.command.error.execute.set": "修改假人执行操作失败...",
     "peca.info.command.error.execute.clear": "清空假人执行操作失败...",
+    "peca.info.command.error.not.player.group": "找不到名为 %s 的假人组",
+    "peca.info.command.error.create.player.group": "无法创建假人组, 可能假人组已存在或者假人组内假人已存在",
+    "peca.info.command.error.save.player.group": "保存假人组失败...",
+    "peca.info.command.error.delete.player.group": "删除自增 id 为 %s 的假人组数据失败...",
+    "peca.info.command.error.spawn.player.group": "生成自增 id 为 %s 的假人组失败...",
 
     "peca.info.sql.not.exist.table.PLAYER": "数据库不存在 PLAYER 表, 自动创建",
 

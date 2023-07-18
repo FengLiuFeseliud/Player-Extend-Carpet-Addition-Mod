@@ -11,6 +11,7 @@ import fengliu.peca.command.PecaCommand;
 import fengliu.peca.command.PlayerAutoCommand;
 import fengliu.peca.command.PlayerGroupCommand;
 import fengliu.peca.command.PlayerManageCommand;
+import fengliu.peca.player.sql.PlayerGroupSql;
 import fengliu.peca.player.sql.PlayerSql;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -84,5 +85,6 @@ public class PecaMod implements ModInitializer, CarpetExtension {
     @Override
     public void onServerLoaded(MinecraftServer server) {
         PlayerSql.createTable();
+        PlayerGroupSql.createTable();
     }
 }

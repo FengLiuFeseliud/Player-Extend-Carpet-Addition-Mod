@@ -5,11 +5,14 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import fengliu.peca.player.sql.PlayerData;
 import fengliu.peca.util.PlayerUtil;
 import net.minecraft.command.argument.GameModeArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -20,7 +23,7 @@ import java.util.List;
 import static fengliu.peca.util.CommandUtil.getArgOrDefault;
 
 public class PlayerGroup implements IPlayerGroup {
-    private static final List<PlayerGroup> groups = new ArrayList<>();
+    public static final List<PlayerGroup> groups = new ArrayList<>();
     public final String groupName;
     protected int groupAmount = 0;
     private final List<EntityPlayerMPFake> bots = new ArrayList<>();
@@ -28,6 +31,7 @@ public class PlayerGroup implements IPlayerGroup {
     public PlayerGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos){
         this.groupName = StringArgumentType.getString(context, "name");
         if (!PlayerUtil.canSpawnGroup(this.groupName, context)){
+            context.getSource().sendError(Text.translatable("peca.info.command.error.create.player.group"));
             return;
         }
 
@@ -52,6 +56,19 @@ public class PlayerGroup implements IPlayerGroup {
             }
             this.add(player);
         }
+    }
+
+    public PlayerGroup(String groupName, List<PlayerData> players, MinecraftServer server) {
+        this.groupName = groupName;
+        groups.add(this);
+
+        players.forEach(playerData -> {
+            this.bots.add(playerData.spawn(server));
+        });
+    }
+
+    public static void createGroup(String groupName, List<PlayerData> players, MinecraftServer server){
+        new PlayerGroup(groupName, players, server);
     }
 
     public static int createGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos){

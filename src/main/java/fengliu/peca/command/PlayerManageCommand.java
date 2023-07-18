@@ -122,15 +122,6 @@ public class PlayerManageCommand {
                 .executes(c -> find(c, PlayerSql::readPlayer)));
     }
 
-    private static boolean booleanPrintMsg(boolean bool, MutableText text, MutableText errorText, CommandContext<ServerCommandSource> context) {
-        if (bool) {
-            context.getSource().sendMessage(text);
-        } else {
-            context.getSource().sendError(errorText);
-        }
-        return bool;
-    }
-
     private static String getLoggedText(ServerCommandSource context, PlayerData playerData) {
         String loggedText;
         ServerPlayerEntity player = context.getServer().getPlayerManager().getPlayer(playerData.name());
@@ -152,8 +143,6 @@ public class PlayerManageCommand {
 
         @Override
         public List<MutableText> putPageData(PlayerData pageData, int index) {
-
-
             List<MutableText> texts = new ArrayList<>();
             texts.add(Text.literal(String.format("[%s] ", index))
                     .append(pageData.name())
@@ -194,7 +183,7 @@ public class PlayerManageCommand {
         String name = CommandUtil.getArgOrDefault(() -> StringArgumentType.getString(context, "name"), data.name());
         GameMode gamemode = CommandUtil.getArgOrDefault(() -> GameModeArgumentType.getGameMode(context, "gamemode"), data.gamemode());
 
-        booleanPrintMsg(PlayerSql.savePlayer(new PlayerData(
+        CommandUtil.booleanPrintMsg(PlayerSql.savePlayer(new PlayerData(
                         data.id(), name, data.dimension(), data.pos(), data.yaw(), data.pitch(), gamemode, data.flying(),
                         data.execute(), data.purpose(), data.createTime(), data.createPlayerUuid(), data.lastModifiedTime(), data.lastModifiedPlayerUuid()
                 ), context.getSource().getPlayer(), purpose),
@@ -237,7 +226,7 @@ public class PlayerManageCommand {
         }
 
         ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
-        booleanPrintMsg(PlayerSql.savePlayer(player, context.getSource().getPlayer(), purpose),
+        CommandUtil.booleanPrintMsg(PlayerSql.savePlayer(player, context.getSource().getPlayer(), purpose),
                 Text.translatable("peca.info.command.player.save", player.getName()),
                 Text.translatable("peca.info.command.player.save", player.getName()),
                 context
@@ -247,7 +236,7 @@ public class PlayerManageCommand {
 
     private static int delete(CommandContext<ServerCommandSource> context) {
         long id = LongArgumentType.getLong(context, "id");
-        booleanPrintMsg(PlayerSql.deletePlayer(id),
+        CommandUtil.booleanPrintMsg(PlayerSql.deletePlayer(id),
                 Text.translatable("peca.info.command.player.delete.info", id),
                 Text.translatable("peca.info.command.error.player.delete", id),
                 context
