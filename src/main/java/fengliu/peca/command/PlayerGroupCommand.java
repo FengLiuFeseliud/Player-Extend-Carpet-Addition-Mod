@@ -3,6 +3,7 @@ package fengliu.peca.command;
 import carpet.helpers.EntityPlayerActionPack;
 import carpet.helpers.EntityPlayerActionPack.Action;
 import carpet.helpers.EntityPlayerActionPack.ActionType;
+import carpet.patches.EntityPlayerMPFake;
 import carpet.utils.CommandHelper;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -24,6 +25,7 @@ import fengliu.peca.player.sql.PlayerGroupSql;
 import fengliu.peca.util.CommandUtil;
 import fengliu.peca.util.Page;
 import fengliu.peca.util.TextClickUtil;
+import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.GameModeArgumentType;
 import net.minecraft.command.argument.RotationArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -39,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static fengliu.peca.util.CommandUtil.booleanPrintMsg;
 import static fengliu.peca.util.CommandUtil.getArgOrDefault;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -49,7 +52,8 @@ public class PlayerGroupCommand {
 
     public static void registerAll(CommandDispatcher<ServerCommandSource> dispatcher) {
         PlayerGroupCmd.then(argument("name", StringArgumentType.string())
-                .then(literal("spawn").then(argument("amount", IntegerArgumentType.integer()).executes(PlayerGroup::createGroup)
+                .then(literal("spawn").executes(PlayerGroup::createGroup)
+                        .then(argument("amount", IntegerArgumentType.integer()).executes(PlayerGroup::createGroup)
                         .then(makeFormationCommands())
                         .then(literal("in").then(argument("gamemode", GameModeArgumentType.gameMode())
                                 .requires(source -> source.hasPermissionLevel(2)).executes(PlayerGroup::createGroup)
@@ -109,6 +113,8 @@ public class PlayerGroupCommand {
                         .then(makeManipulationCommand("left", ap -> ap.setStrafing(1)))
                         .then(makeManipulationCommand("right", ap -> ap.setStrafing(-1))))
                 .then(literal("save").then(argument("purpose", StringArgumentType.string()).executes(PlayerGroupCommand::save)))
+                .then(literal("add").then(argument("player", EntityArgumentType.player()).executes(PlayerGroupCommand::addPlayer)))
+                .then(literal("del").then(argument("player", EntityArgumentType.player()).executes(PlayerGroupCommand::delPlayer)))
         );
 
         PlayerGroupCmd
@@ -376,4 +382,33 @@ public class PlayerGroupCommand {
         printInfo(context, PlayerGroupSql.readPlayerGroup(LongArgumentType.getLong(context, "id")));
         return Command.SINGLE_SUCCESS;
     }
+
+    private static int addPlayer(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        PlayerGroup playerGroup = PlayerGroup.getGroup(StringArgumentType.getString(context, "name"));
+        if (playerGroup == null){
+            context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.find.empty"));
+            return -1;
+        }
+
+        ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
+        if (!(player instanceof EntityPlayerMPFake fakePlayer)){
+            context.getSource().sendMessage(Text.translatable("peca.info.command.error.player.group.add.not.fake.player"));
+            return -1;
+        }
+
+        playerGroup.add(fakePlayer);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int delPlayer(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        PlayerGroup playerGroup = PlayerGroup.getGroup(StringArgumentType.getString(context, "name"));
+        if (playerGroup == null){
+            context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.find.empty"));
+            return -1;
+        }
+
+        playerGroup.del((EntityPlayerMPFake) EntityArgumentType.getPlayer(context, "player"));
+        return Command.SINGLE_SUCCESS;
+    }
+
 }

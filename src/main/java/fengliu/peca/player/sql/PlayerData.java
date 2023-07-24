@@ -100,42 +100,42 @@ public record PlayerData(
         );
     }
 
-    public static JsonObject toJson(PlayerData playerData){
+    public JsonObject toJson(){
         JsonObject playerJson = new JsonObject();
-        playerJson.addProperty("id", playerData.id);
-        playerJson.addProperty("name", playerData.name);
-        playerJson.addProperty("dimension", playerData.dimension.toString());
+        playerJson.addProperty("id", this.id);
+        playerJson.addProperty("name", this.name);
+        playerJson.addProperty("dimension", this.dimension.toString());
 
         JsonObject pos = new JsonObject();
-        pos.addProperty("x", playerData.pos.x);
-        pos.addProperty("y", playerData.pos.y);
-        pos.addProperty("z", playerData.pos.z);
+        pos.addProperty("x", this.pos.x);
+        pos.addProperty("y", this.pos.y);
+        pos.addProperty("z", this.pos.z);
         playerJson.add("pos", pos);
-        playerJson.addProperty("yaw", playerData.yaw);
-        playerJson.addProperty("pitch", playerData.pitch);
-        playerJson.addProperty("gamemode", playerData.gamemode.getId());
-        playerJson.addProperty("flying", playerData.flying);
-        playerJson.add("execute", playerData.execute);
-        playerJson.addProperty("purpose", playerData.purpose);
-        if (playerData.createTime != null){
-            playerJson.addProperty("createTime", playerData.createTime.toString());
+        playerJson.addProperty("yaw", this.yaw);
+        playerJson.addProperty("pitch", this.pitch);
+        playerJson.addProperty("gamemode", this.gamemode.getId());
+        playerJson.addProperty("flying", this.flying);
+        playerJson.add("execute", this.execute);
+        playerJson.addProperty("purpose", this.purpose);
+        if (this.createTime != null){
+            playerJson.addProperty("createTime", this.createTime.toString());
         } else {
             playerJson.add("createTime", null);
         }
 
-        if (playerData.createPlayerUuid != null){
-            playerJson.addProperty("createPlayerUuid", playerData.createPlayerUuid.toString());
+        if (this.createPlayerUuid != null){
+            playerJson.addProperty("createPlayerUuid", this.createPlayerUuid.toString());
         } else {
             playerJson.add("createPlayerUuid", null);
         }
 
-        if (playerData.lastModifiedTime != null){
-            playerJson.addProperty("lastModifiedTime", playerData.lastModifiedTime.toString());
+        if (this.lastModifiedTime != null){
+            playerJson.addProperty("lastModifiedTime", this.lastModifiedTime.toString());
         } else {
             playerJson.add("lastModifiedTime", null);
         }
-        if (playerData.lastModifiedPlayerUuid != null){
-            playerJson.addProperty("lastModifiedPlayerUuid", playerData.lastModifiedPlayerUuid.toString());
+        if (this.lastModifiedPlayerUuid != null){
+            playerJson.addProperty("lastModifiedPlayerUuid", this.lastModifiedPlayerUuid.toString());
         } else {
             playerJson.add("lastModifiedPlayerUuid", null);
         }

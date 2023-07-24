@@ -1,10 +1,12 @@
 package fengliu.peca.player.sql;
 
+import carpet.patches.EntityPlayerMPFake;
 import com.google.gson.JsonArray;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import fengliu.peca.PecaMod;
 import fengliu.peca.player.IPlayerGroup;
+import fengliu.peca.player.PlayerGroup;
 import fengliu.peca.util.CommandUtil;
 import fengliu.peca.util.sql.ISqlConnection;
 import fengliu.peca.util.sql.SqlUtil;
@@ -62,7 +64,7 @@ public class PlayerGroupSql {
         JsonArray players = new JsonArray();
 
         playerGroup.getBots().forEach(bot -> {
-            players.add(PlayerData.toJson(PlayerData.fromPlayer(bot)));
+            players.add(PlayerData.fromPlayer(bot).toJson());
         });
         return (boolean) connection.executeSpl(statement -> {
             statement.execute(String.format("""
@@ -82,9 +84,53 @@ public class PlayerGroupSql {
 
     public static boolean spawnGroup(long id, MinecraftServer server){
         return (boolean) connection.executeSpl(statement -> {
-            PlayerGroupData.fromResultSet(statement.executeQuery(String.format("SELECT * FROM %s WHERE ID=%s", connection.getTableName(), id))).get(0).spawn(server);
+            PlayerGroupData playerGroupData = PlayerGroupData.fromResultSet(statement.executeQuery(String.format("SELECT * FROM %s WHERE ID=%s", connection.getTableName(), id))).get(0);
+            if (PlayerGroup.getGroup(playerGroupData.name()) != null){
+                return false;
+            }
+            playerGroupData.spawn(server);
             return true;
         });
+    }
+
+    public static boolean addPlayer(long id, EntityPlayerMPFake player){
+        PlayerGroupData playerGroupData = readPlayerGroup(id);
+        if (playerGroupData == null){
+            return false;
+        }
+
+        if (playerGroupData.isInPlayer(player)){
+            return false;
+        }
+
+        JsonArray playersData = playerGroupData.playersToJsonArray();
+        playersData.add(PlayerData.fromPlayer(player).toJson());
+
+        return (boolean) connection.executeSpl(statement -> {
+            statement.execute(String.format("UPDATE %s SET PLAYERS='%s', BOT_COUNT=%s WHERE ID=%S", connection.getTableName(), playersData, playersData.size(), id));
+            return true;
+        });
+    }
+
+    public static boolean delPlayer(long id, EntityPlayerMPFake player){
+        PlayerGroupData playerGroupData = readPlayerGroup(id);
+        if (playerGroupData == null){
+            return false;
+        }
+
+        JsonArray playersData = playerGroupData.playersToJsonArray();
+        for (int index = 0; index < playersData.size(); index++){
+            if(!playersData.get(index).getAsJsonObject().get("name").getAsString().equals(player.getName().getString())){
+                continue;
+            }
+
+            playersData.remove(index);
+            return (boolean) connection.executeSpl(statement -> {
+                statement.execute(String.format("UPDATE %s SET PLAYERS='%s', BOT_COUNT=%s WHERE ID=%S", connection.getTableName(), playersData, playersData.size(), id));
+                return true;
+            });
+        }
+        return false;
     }
 
     private static List<PlayerGroupData> readPlayerGroup(long id, @Nullable String groupName){

@@ -1,5 +1,7 @@
 package fengliu.peca.player.sql;
 
+import carpet.patches.EntityPlayerMPFake;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import fengliu.peca.player.PlayerGroup;
 import net.minecraft.server.MinecraftServer;
@@ -22,6 +24,7 @@ public record PlayerGroupData(
         Timestamp lastModifiedTime,
         UUID lastModifiedPlayerUuid
 ) {
+
     public static List<PlayerGroupData> fromResultSet(ResultSet result) throws SQLException {
         List<PlayerGroupData> playerGroupDataList = new ArrayList<>();
         while (result.next()){
@@ -46,7 +49,24 @@ public record PlayerGroupData(
         return playerGroupDataList;
     }
 
+    public boolean isInPlayer(EntityPlayerMPFake fakePlayer){
+        for (PlayerData data: this.players){
+            if (data.name().equals(fakePlayer.getEntityName())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public JsonArray playersToJsonArray(){
+        JsonArray players = new JsonArray();
+        this.players.forEach(playerData -> {
+            players.add(playerData.toJson());
+        });
+        return players;
+    }
+
     public void spawn(MinecraftServer server){
-        PlayerGroup.createGroup(this.name, this.players, server);
+        PlayerGroup.createGroup(this, server);
     }
 }

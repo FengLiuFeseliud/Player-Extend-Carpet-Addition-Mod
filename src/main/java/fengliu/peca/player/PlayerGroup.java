@@ -6,6 +6,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import fengliu.peca.player.sql.PlayerData;
+import fengliu.peca.player.sql.PlayerGroupData;
+import fengliu.peca.player.sql.PlayerGroupSql;
+import fengliu.peca.util.CommandUtil;
 import fengliu.peca.util.PlayerUtil;
 import net.minecraft.command.argument.GameModeArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -23,6 +26,7 @@ import java.util.List;
 import static fengliu.peca.util.CommandUtil.getArgOrDefault;
 
 public class PlayerGroup implements IPlayerGroup {
+    private long id = -1;
     public static final List<PlayerGroup> groups = new ArrayList<>();
     public final String groupName;
     protected int groupAmount = 0;
@@ -36,6 +40,11 @@ public class PlayerGroup implements IPlayerGroup {
         }
 
         PlayerGroup.groups.add(this);
+        int botAmount = CommandUtil.getArgOrDefault(() -> IntegerArgumentType.getInteger(context, "amount"), -1);
+        if (botAmount == -1){
+            return;
+        }
+
         GameMode mode = getArgOrDefault(() -> GameModeArgumentType.getGameMode(context, "gamemode"), null);
         if (formationPos == null){
             Vec3d pos = getArgOrDefault(() -> Vec3ArgumentType.getVec3(context, ""), context.getSource().getPosition());
@@ -49,7 +58,7 @@ public class PlayerGroup implements IPlayerGroup {
             return;
         }
 
-        for (int index = 1; index < IntegerArgumentType.getInteger(context, "amount") + 1; index++){
+        for (int index = 1; index < botAmount + 1; index++){
             EntityPlayerMPFake player = PlayerUtil.spawn(this.groupName + "_" + index, formationPos[index-1], mode, context);
             if (player == null){
                 continue;
@@ -58,17 +67,18 @@ public class PlayerGroup implements IPlayerGroup {
         }
     }
 
-    public PlayerGroup(String groupName, List<PlayerData> players, MinecraftServer server) {
-        this.groupName = groupName;
+    public PlayerGroup(PlayerGroupData playerGroupData, MinecraftServer server) {
+        this.groupName = playerGroupData.name();
+        this.id = playerGroupData.id();
         groups.add(this);
 
-        players.forEach(playerData -> {
+        playerGroupData.players().forEach(playerData -> {
             this.bots.add(playerData.spawn(server));
         });
     }
 
-    public static void createGroup(String groupName, List<PlayerData> players, MinecraftServer server){
-        new PlayerGroup(groupName, players, server);
+    public static void createGroup(PlayerGroupData playerGroupData, MinecraftServer server){
+        new PlayerGroup(playerGroupData, server);
     }
 
     public static int createGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos){
@@ -97,8 +107,27 @@ public class PlayerGroup implements IPlayerGroup {
             return;
         }
 
+        if (id != -1){
+            PlayerGroupSql.addPlayer(id, bot);
+        }
+
         this.groupAmount++;
         IPlayerGroup.super.add(bot);
+    }
+
+    @Override
+    public EntityPlayerMPFake del(EntityPlayerMPFake player) {
+        EntityPlayerMPFake fakePlayer = IPlayerGroup.super.del(player);
+        if (fakePlayer == null){
+            return null;
+        }
+
+        if (this.id == -1){
+            return fakePlayer;
+        }
+
+        PlayerGroupSql.delPlayer(this.id, player);
+        return fakePlayer;
     }
 
     @Override
