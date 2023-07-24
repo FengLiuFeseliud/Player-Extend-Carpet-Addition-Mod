@@ -5,6 +5,8 @@ import carpet.helpers.EntityPlayerActionPack.Action;
 import carpet.helpers.EntityPlayerActionPack.ActionType;
 import carpet.patches.EntityPlayerMPFake;
 import carpet.utils.CommandHelper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -121,7 +123,12 @@ public class PlayerGroupCommand {
                 .then(literal("id").then(argument("id", LongArgumentType.longArg())
                         .then(literal("delete").executes(PlayerGroupCommand::delete))
                         .then(literal("spawn").executes(PlayerGroupCommand::spawn))
-                        .then(literal("info").executes(PlayerGroupCommand::infoId))));
+                        .then(literal("info").executes(PlayerGroupCommand::infoId))
+                        .then(makeExecuteDelCommands("execute", root -> root.executes(PlayerGroupCommand::execute), PlayerGroupCommand::execute)
+                                .then(makeExecuteCommands("add", root -> root.executes(PlayerGroupCommand::executeAdd), PlayerGroupCommand::executeAdd))
+                                .then(makeExecuteCommands("set", root -> root.then(argument("commandIndex", IntegerArgumentType.integer(1)).executes(PlayerGroupCommand::executeSet)), PlayerGroupCommand::executeSet))
+                                .then(makeExecuteDelCommands("del", root -> root.then(argument("commandIndex", IntegerArgumentType.integer(1)).executes(PlayerGroupCommand::executeDel)), PlayerGroupCommand::executeDel))
+                                .then(makeExecuteDelCommands("clear", root -> root.executes(PlayerGroupCommand::executeClear), PlayerGroupCommand::executeClear)))));
 
         PlayerGroupCmd
                 .then(literal("list").executes(c -> find(c, PlayerGroupSql::readPlayerGroup)));
@@ -242,11 +249,31 @@ public class PlayerGroupCommand {
                 .then(makeFormationRowCommand(FormationType.QUADRANGLE));
     }
 
+    interface ExecutesLiteral {
+        RequiredArgumentBuilder<ServerCommandSource, ?> literal(RequiredArgumentBuilder<ServerCommandSource, ?> root);
+    }
+
+    private static LiteralArgumentBuilder<ServerCommandSource> makeExecuteCommands(String name, ExecutesLiteral executesLiteral, Command<ServerCommandSource> command) {
+        return literal(name).then(argument("command", StringArgumentType.string())
+                .executes(command)
+                .then(literal("to")
+                        .then(executesLiteral.literal(argument("name", StringArgumentType.string())))
+                        .then(literal("index").then(executesLiteral.literal(argument("index", IntegerArgumentType.integer(0)))))));
+    }
+
+    private static LiteralArgumentBuilder<ServerCommandSource> makeExecuteDelCommands(String name, ExecutesLiteral executesLiteral, Command<ServerCommandSource> command) {
+        return literal(name)
+                .executes(command)
+                .then(literal("to")
+                        .then(executesLiteral.literal(argument("name", StringArgumentType.string())))
+                        .then(literal("index").then(executesLiteral.literal(argument("index", IntegerArgumentType.integer(0))))));
+    }
+
     private static String getCreateText(PlayerGroupData playerGroupData) {
         String createText;
         if (PlayerGroup.getGroup(playerGroupData.name()) != null) {
             createText = "peca.info.command.player.group.create";
-        } else{
+        } else {
             createText = "peca.info.command.player.group.not.create";
         }
         return createText;
@@ -351,9 +378,11 @@ public class PlayerGroupCommand {
         context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.count", playerGroupData.botCount()).setStyle(Style.EMPTY.withColor(0x00AAAA)));
 
         context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.player.info.1"));
-        for(int index = 0; index < playerGroupData.players().size(); index++){
+        for(int index = 0; index < playerGroupData.players().size(); index++) {
             PlayerData playerData = playerGroupData.players().get(index);
-            context.getSource().sendMessage(Text.literal(String.format("[%s] %s §3- §6x: %s y: %s z: %s §3- §7%s", index+1, playerData.name(), (int)playerData.pos().x, (int)playerData.pos().y, (int)playerData.pos().z, playerData.dimension())));
+            context.getSource().sendMessage(Text.literal(String.format("[%s] %s §3- §6x: %s y: %s z: %s §3- §7%s", index + 1, playerData.name(), (int) playerData.pos().x, (int) playerData.pos().y, (int) playerData.pos().z, playerData.dimension())));
+            context.getSource().sendMessage(Text.translatable("peca.info.command.player.execute.info",
+                    playerData.execute().toString().replace("[", "§3[").replace("]", "§3]").replace(",", "§3,").replace("\"", "§6\"")));
         }
         context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.player.info.2"));
 
@@ -402,12 +431,87 @@ public class PlayerGroupCommand {
 
     private static int delPlayer(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         PlayerGroup playerGroup = PlayerGroup.getGroup(StringArgumentType.getString(context, "name"));
-        if (playerGroup == null){
+        if (playerGroup == null) {
             context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.find.empty"));
             return -1;
         }
 
         playerGroup.del((EntityPlayerMPFake) EntityArgumentType.getPlayer(context, "player"));
+        return Command.SINGLE_SUCCESS;
+    }
+
+
+    private static void setExecute(CommandContext<ServerCommandSource> context, PlayerGroupSql.Execute execute) {
+        long id = LongArgumentType.getLong(context, "id");
+        booleanPrintMsg(
+                PlayerGroupSql.updatePlayerExecute(
+                        id,
+                        execute,
+                        CommandUtil.getArgOrDefault(() -> IntegerArgumentType.getInteger(context, "index") - 1, -1),
+                        CommandUtil.getArgOrDefault(() -> StringArgumentType.getString(context, "name"), null)
+                ),
+                Text.translatable("peca.info.command.player.group.execute.update"),
+                Text.translatable("peca.info.command.error.player.group.execute.update"),
+                context
+        );
+    }
+
+    private static int execute(CommandContext<ServerCommandSource> context) {
+        setExecute(context, (executeArray, playerName) -> {
+            executeArray.forEach(command -> {
+                context.getSource().getServer().getCommandManager().executeWithPrefix(context.getSource(), command.getAsString());
+            });
+            return executeArray;
+        });
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int executeAdd(CommandContext<ServerCommandSource> context) {
+        String command = StringArgumentType.getString(context, "command");
+        if (!command.startsWith("/player")) {
+            context.getSource().sendError(Text.translatable("peca.info.command.error.execute.add.starts"));
+            return -1;
+        }
+
+        setExecute(context, (executeArray, playerName) -> {
+            executeArray.add(command.replace("%s", playerName));
+            return executeArray;
+        });
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int executeDel(CommandContext<ServerCommandSource> context) {
+        int index = IntegerArgumentType.getInteger(context, "commandIndex") - 1;
+        setExecute(context, (executeArray, playerName) -> {
+            if (index > executeArray.size()) {
+                return executeArray;
+            }
+            executeArray.remove(index);
+            return executeArray;
+        });
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int executeSet(CommandContext<ServerCommandSource> context) {
+        int index = IntegerArgumentType.getInteger(context, "commandIndex") - 1;
+        String command = StringArgumentType.getString(context, "command");
+        if (!command.startsWith("/player")) {
+            context.getSource().sendError(Text.translatable("peca.info.command.error.execute.add.starts"));
+            return -1;
+        }
+
+        setExecute(context, (executeArray, playerName) -> {
+            if (index > executeArray.size()) {
+                return executeArray;
+            }
+            executeArray.set(index, new JsonPrimitive(command.replace("%s", playerName)));
+            return executeArray;
+        });
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int executeClear(CommandContext<ServerCommandSource> context) {
+        setExecute(context, (executeArray, playerName) -> new JsonArray());
         return Command.SINGLE_SUCCESS;
     }
 

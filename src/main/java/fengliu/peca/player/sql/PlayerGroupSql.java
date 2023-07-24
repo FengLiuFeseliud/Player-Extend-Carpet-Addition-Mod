@@ -2,6 +2,8 @@ package fengliu.peca.player.sql;
 
 import carpet.patches.EntityPlayerMPFake;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import fengliu.peca.PecaMod;
@@ -133,13 +135,48 @@ public class PlayerGroupSql {
         return false;
     }
 
-    private static List<PlayerGroupData> readPlayerGroup(long id, @Nullable String groupName){
-        SqlUtil.BuildSqlHelper sqlHelper = new SqlUtil.BuildSqlHelper(String.format("SELECT * FROM %s", connection.getTableName()));
-        if (groupName != null){
-            sqlHelper.like("GROUP_NAME", "'%" + groupName +"%'");
+    public interface Execute {
+        JsonArray run(JsonArray executeArray, String playerName);
+    }
+
+    public static boolean updatePlayerExecute(long id, Execute execute, int index, @Nullable String name) {
+        PlayerGroupData playerGroupData = readPlayerGroup(id);
+        if (playerGroupData == null) {
+            return false;
         }
 
-        if (id != -1){
+        JsonArray players = playerGroupData.playersToJsonArray();
+        if (index >= 0) {
+            if (index >= players.size()) {
+                return false;
+            }
+            players.get(index).getAsJsonObject().add("execute", execute.run(players.get(index).getAsJsonObject().get("execute").getAsJsonArray(), players.get(index).getAsJsonObject().get("name").getAsString()));
+        } else if (name == null) {
+            for (JsonElement data : players) {
+                data.getAsJsonObject().add("execute", execute.run(data.getAsJsonObject().get("execute").getAsJsonArray(), data.getAsJsonObject().get("name").getAsString()));
+            }
+        } else {
+            for (JsonElement data : players) {
+                if (!data.getAsJsonObject().get("name").getAsString().equals(name)) {
+                    continue;
+                }
+                data.getAsJsonObject().add("execute", execute.run(data.getAsJsonObject().get("execute").getAsJsonArray(), data.getAsJsonObject().get("name").getAsString()));
+            }
+        }
+
+        return (boolean) connection.executeSpl(statement -> {
+            statement.execute(String.format("UPDATE %s SET PLAYERS='%s' WHERE ID=%S", connection.getTableName(), players, id));
+            return true;
+        });
+    }
+
+    private static List<PlayerGroupData> readPlayerGroup(long id, @Nullable String groupName) {
+        SqlUtil.BuildSqlHelper sqlHelper = new SqlUtil.BuildSqlHelper(String.format("SELECT * FROM %s", connection.getTableName()));
+        if (groupName != null) {
+            sqlHelper.like("GROUP_NAME", "'%" + groupName + "%'");
+        }
+
+        if (id != -1) {
             sqlHelper.and(String.format("ID=%s", id));
         }
 

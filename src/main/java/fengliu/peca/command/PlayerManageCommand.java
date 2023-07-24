@@ -4,6 +4,7 @@ import carpet.patches.EntityPlayerMPFake;
 import carpet.utils.CommandHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -371,7 +372,7 @@ public class PlayerManageCommand {
             if (index > executeArray.size()) {
                 return executeArray;
             }
-            executeArray.set(index, JsonParser.parseString(String.format("{command:\"%s\"}", command)).getAsJsonObject().get("command"));
+            executeArray.set(index, new JsonPrimitive(command));
             return executeArray;
         }, Text.translatable("peca.info.command.error.execute.set"));
     }
