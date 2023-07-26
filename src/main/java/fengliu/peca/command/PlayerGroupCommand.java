@@ -383,6 +383,20 @@ public class PlayerGroupCommand {
             context.getSource().sendMessage(Text.literal(String.format("[%s] %s §3- §6x: %s y: %s z: %s §3- §7%s", index + 1, playerData.name(), (int) playerData.pos().x, (int) playerData.pos().y, (int) playerData.pos().z, playerData.dimension())));
             context.getSource().sendMessage(Text.translatable("peca.info.command.player.execute.info",
                     playerData.execute().toString().replace("[", "§3[").replace("]", "§3]").replace(",", "§3,").replace("\"", "§6\"")));
+            context.getSource().sendMessage(TextClickUtil.suggestText(Text.translatable("peca.info.command.player.spawn.suggest"), String.format(
+                            "/player %s spawn at %g %g %g facing %g %g in %s in %s",
+                            playerData.name(),
+                            playerData.pos().x,
+                            playerData.pos().y,
+                            playerData.pos().z,
+                            playerData.yaw(),
+                            playerData.pitch(),
+                            playerData.dimension().getPath(),
+                            playerData.gamemode().getName()
+                    ))
+                    .append(TextClickUtil.runText(Text.translatable("peca.info.command.player.stop"), String.format("/player %s stop", playerData.name())))
+                    .append(TextClickUtil.runText(Text.translatable("peca.info.command.player.kill"), String.format("/player %s kill", playerData.name())))
+                    .append(TextClickUtil.runText(Text.translatable("peca.info.command.player.group.delete.player"), String.format("/playerGroup %s del %s", playerGroupData.name(), playerData.name()))));
         }
         context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.player.info.2"));
 
@@ -405,6 +419,11 @@ public class PlayerGroupCommand {
         context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.purpose", playerGroupData.purpose()));
         context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.id", playerGroupData.id()).setStyle(Style.EMPTY.withColor(0x00AAAA)));
         context.getSource().sendMessage(Text.translatable("peca.info.command.player.group.data.info").setStyle(Style.EMPTY.withColor(0xFF5555)));
+        context.getSource().sendMessage(TextClickUtil.runText(Text.translatable("peca.info.command.player.group.spawn"), String.format("/playerGroup id %s spawn", playerGroupData.id()))
+                .append(TextClickUtil.runText(Text.translatable("peca.info.command.player.group.execute"), String.format("/playerGroup id %s execute", playerGroupData.id())))
+                .append(TextClickUtil.runText(Text.translatable("peca.info.command.player.group.stop"), String.format("/playerGroup %s stop", playerGroupData.name())))
+                .append(TextClickUtil.runText(Text.translatable("peca.info.command.player.group.kill"), String.format("/playerGroup %s kill", playerGroupData.name())))
+                .append(TextClickUtil.runText(Text.translatable("peca.info.command.player.group.delete"), String.format("/playerGroup id %s delete", playerGroupData.id()))));
     }
 
     private static int infoId(CommandContext<ServerCommandSource> context) {

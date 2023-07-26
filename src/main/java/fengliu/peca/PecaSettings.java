@@ -20,6 +20,12 @@ public class PecaSettings {
     @Rule(categories = {PECA, COMMAND})
     public static String commandPlayerManage = "ops";
 
+    @Rule(categories = {PECA, COMMAND})
+    public static String commandPlayerGroupManage = "ops";
+
+    @Rule(categories = {PECA, COMMAND})
+    public static boolean hiddenFakePlayerGroupJoinMessage = false;
+
     @Rule(categories = {PECA})
     public static boolean fakePlayerGameModeLockSurvive = false;
 

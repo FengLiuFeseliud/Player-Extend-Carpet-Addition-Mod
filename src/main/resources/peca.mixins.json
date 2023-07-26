@@ -11,6 +11,7 @@
     "LivingEntityMixin",
     "MerchantScreenHandlerMixin",
     "PlayerEntityMixin",
+    "PlayerManagerMixin",
     "PowderSnowBlockMixin",
     "ServerPlayerInteractionManagerMixin",
     "SettingsManagerMixin"
