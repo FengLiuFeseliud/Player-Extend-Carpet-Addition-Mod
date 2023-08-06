@@ -18,6 +18,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * 假人每 tick 执行任务
+ */
 @Mixin(EntityPlayerMPFake.class)
 public abstract class FakePlayerAutoMixin extends ServerPlayerEntity implements IPlayerAuto {
     private PlayerAutoType autoType = PlayerAutoType.STOP;
@@ -47,14 +50,5 @@ public abstract class FakePlayerAutoMixin extends ServerPlayerEntity implements 
     @Override
     public void stopAutoTask() {
         this.autoType.stopTask(this.autoContext, (EntityPlayerMPFake) (Object) this);
-    }
-
-    @Inject(method = "createFake", at = @At("RETURN"))
-    private static void savePlayer(String username, MinecraftServer server, Vec3d pos, double yaw, double pitch, RegistryKey<World> dimensionId, GameMode gamemode, boolean flying, CallbackInfoReturnable<EntityPlayerMPFake> cir){
-//        if (cir.getReturnValue() == null){
-//            return;
-//        }
-//
-//        PlayerSql.savePlayer(cir.getReturnValue());
     }
 }

@@ -22,19 +22,29 @@ import java.util.Optional;
 
 import static fengliu.peca.util.CommandUtil.getArgOrDefault;
 
+/**
+ * 假人自动任务类型
+ */
 public enum PlayerAutoType {
+
+    /**
+     * 停止
+     */
     STOP((context, player) -> {
         return;
     }, (context, player) -> {
         return;
     }),
 
+    /**
+     * 分类
+     */
     SORT((context, player) -> {
         PecaMod.LOGGER.info(player.currentScreenHandler.toString());
         if (!(player.currentScreenHandler instanceof ShulkerBoxScreenHandler)
-            && !(player.currentScreenHandler instanceof GenericContainerScreenHandler)
-            && !(player.currentScreenHandler instanceof Generic3x3ContainerScreenHandler)
-            && !(player.currentScreenHandler instanceof HopperScreenHandler)){
+                && !(player.currentScreenHandler instanceof GenericContainerScreenHandler)
+                && !(player.currentScreenHandler instanceof Generic3x3ContainerScreenHandler)
+                && !(player.currentScreenHandler instanceof HopperScreenHandler)) {
             return;
         }
 
@@ -61,20 +71,23 @@ public enum PlayerAutoType {
             }
         }
     }, (context, player) -> {
-        if (!(player.currentScreenHandler instanceof PlayerScreenHandler)){
+        if (!(player.currentScreenHandler instanceof PlayerScreenHandler)) {
             player.currentScreenHandler.onClosed(player);
         }
     }),
 
+    /**
+     * 合成
+     */
     CRAFT((context, player) -> {
-        if(!(player.currentScreenHandler instanceof CraftingScreenHandler crafting) || player.getServer() == null){
+        if (!(player.currentScreenHandler instanceof CraftingScreenHandler crafting) || player.getServer() == null) {
             return;
         }
 
         PlayerInventory inventory = player.getInventory();
         FakeCraftingInventory fakeCraftingInventory = new FakeCraftingInventory();
 
-        for (int index = 0; index < 9; index++){
+        for (int index = 0; index < 9; index++) {
             ItemStack stack = ItemStackArgumentType.getItemStackArgument(context, "slot" + index).getItem().getDefaultStack();
             if (stack.isEmpty()){
                 continue;
@@ -103,7 +116,7 @@ public enum PlayerAutoType {
             }
             stack = craftStack;
             player.dropItem(craftStack, false, false);
-            for(int craftingIndex = 0; craftingIndex < fakeCraftingInventory.size(); craftingIndex++){
+            for (int craftingIndex = 0; craftingIndex < fakeCraftingInventory.size(); craftingIndex++) {
                 fakeCraftingInventory.getStack(craftingIndex).decrement(1);
             }
         }
@@ -112,8 +125,11 @@ public enum PlayerAutoType {
         return;
     }),
 
+    /**
+     * 交易
+     */
     TRADING((context, player) -> {
-        if (!(player.currentScreenHandler instanceof MerchantScreenHandler merchant)){
+        if (!(player.currentScreenHandler instanceof MerchantScreenHandler merchant)) {
             return;
         }
 
@@ -168,23 +184,29 @@ public enum PlayerAutoType {
 
     });
 
-    interface AutoTask{
+    interface AutoTask {
         void run(CommandContext<ServerCommandSource> context, EntityPlayerMPFake player);
     }
 
     private final AutoTask task;
     private final AutoTask stopTask;
 
-    PlayerAutoType(AutoTask task, AutoTask stopTask){
+    /**
+     * 自动任务类型
+     *
+     * @param task     执行
+     * @param stopTask 停止
+     */
+    PlayerAutoType(AutoTask task, AutoTask stopTask) {
         this.task = task;
         this.stopTask = stopTask;
     }
 
-    public void runTask(CommandContext<ServerCommandSource> context, EntityPlayerMPFake player){
+    public void runTask(CommandContext<ServerCommandSource> context, EntityPlayerMPFake player) {
         this.task.run(context, player);
     }
 
-    public void stopTask(CommandContext<ServerCommandSource> context, EntityPlayerMPFake player){
+    public void stopTask(CommandContext<ServerCommandSource> context, EntityPlayerMPFake player) {
         this.stopTask.run(context, player);
     }
 }

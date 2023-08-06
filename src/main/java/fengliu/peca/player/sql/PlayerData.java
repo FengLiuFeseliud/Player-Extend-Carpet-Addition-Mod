@@ -21,6 +21,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * 假人数据
+ *
+ * @param id                     数据库索引, 只有在数据库单独保存才会存在, 不存在为 -1
+ * @param name                   假人名
+ * @param dimension              维度 id
+ * @param pos                    坐标
+ * @param yaw                    视角
+ * @param pitch                  视角
+ * @param gamemode               游戏模式
+ * @param flying                 是否飞行
+ * @param execute                执行操作
+ * @param purpose                保存理由, 只有在数据库单独保存才会存在, 不存在为 null
+ * @param createTime             创建时间, 只有在数据库单独保存才会存在, 不存在为 null
+ * @param createPlayerUuid       创建用户游戏 uuid, 只有在数据库单独保存才会存在, 不存在为 null
+ * @param lastModifiedTime       最后修改时间, 只有在数据库单独保存才会存在, 不存在为 null
+ * @param lastModifiedPlayerUuid 最后修改用户游戏 uuid, 只有在数据库单独保存才会存在, 不存在为 null
+ */
 public record PlayerData(
         long id,
         String name,
@@ -36,11 +54,18 @@ public record PlayerData(
         UUID createPlayerUuid,
         Timestamp lastModifiedTime,
         UUID lastModifiedPlayerUuid
-)
-{
+) {
+
+    /**
+     * 从查询结果表转假人数据列表
+     *
+     * @param result 查询结果
+     * @return 假人数据列表
+     * @throws SQLException sql 错误
+     */
     public static List<PlayerData> fromResultSet(ResultSet result) throws SQLException {
         List<PlayerData> playerDates = new ArrayList<>();
-        while (result.next()){
+        while (result.next()) {
             playerDates.add(new PlayerData(
                     result.getLong("ID"),
                     result.getString("NAME"),
@@ -61,9 +86,15 @@ public record PlayerData(
         return playerDates;
     }
 
-    public static PlayerData fromPlayer(ServerPlayerEntity player){
-        return new PlayerData (
-                -1 ,
+    /**
+     * 从玩家转假人数据
+     *
+     * @param player 玩家
+     * @return 假人数据
+     */
+    public static PlayerData fromPlayer(ServerPlayerEntity player) {
+        return new PlayerData(
+                -1,
                 player.getEntityName(),
                 player.getWorld().getDimensionKey().getValue(),
                 player.getPos(),
@@ -80,7 +111,13 @@ public record PlayerData(
         );
     }
 
-    public static PlayerData fromJson(JsonObject playerJson){
+    /**
+     * 从 JSON 转假人数据
+     *
+     * @param playerJson 假人数据 JSON
+     * @return 假人数据
+     */
+    public static PlayerData fromJson(JsonObject playerJson) {
         JsonObject pos = playerJson.getAsJsonObject("pos");
         return new PlayerData(
                 playerJson.get("id").getAsLong(),
@@ -100,7 +137,12 @@ public record PlayerData(
         );
     }
 
-    public JsonObject toJson(){
+    /**
+     * 从假人数据转 JSON
+     *
+     * @return JSON
+     */
+    public JsonObject toJson() {
         JsonObject playerJson = new JsonObject();
         playerJson.addProperty("id", this.id);
         playerJson.addProperty("name", this.name);
@@ -129,12 +171,12 @@ public record PlayerData(
             playerJson.add("createPlayerUuid", null);
         }
 
-        if (this.lastModifiedTime != null){
+        if (this.lastModifiedTime != null) {
             playerJson.addProperty("lastModifiedTime", this.lastModifiedTime.toString());
         } else {
             playerJson.add("lastModifiedTime", null);
         }
-        if (this.lastModifiedPlayerUuid != null){
+        if (this.lastModifiedPlayerUuid != null) {
             playerJson.addProperty("lastModifiedPlayerUuid", this.lastModifiedPlayerUuid.toString());
         } else {
             playerJson.add("lastModifiedPlayerUuid", null);
@@ -142,10 +184,16 @@ public record PlayerData(
         return playerJson;
     }
 
-    public EntityPlayerMPFake spawn(MinecraftServer server){
+    /**
+     * 以该假人数据创建假人
+     *
+     * @param server 服务器实例
+     * @return 假人
+     */
+    public EntityPlayerMPFake spawn(MinecraftServer server) {
         if (!PlayerUtil.canSpawn(this.name, server.getPlayerManager())){
             return null;
         }
-       return EntityPlayerMPFake.createFake(this.name, server, this.pos, this.yaw, this.pitch, RegistryKey.of(RegistryKeys.WORLD, this.dimension), this.gamemode, this.flying);
+        return EntityPlayerMPFake.createFake(this.name, server, this.pos, this.yaw, this.pitch, RegistryKey.of(RegistryKeys.WORLD, this.dimension), this.gamemode, this.flying);
     }
 }

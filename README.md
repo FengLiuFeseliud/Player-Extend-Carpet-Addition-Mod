@@ -52,20 +52,84 @@ quadrangle
 ```markdown
 # 创建一个组名为 bot 的假人组, 有 10 个假人, 并且排成一排
 /playerGroup bot spawn 10 formation row
+
 # 创建一个组名为 bot 的假人组, 有 10 个假人, 并且排成一列, 方向南
+
 /playerGroup bot spawn 10 formation row north
+
 # 创建一个组名为 bot 的假人组, 有 9 个假人, 并且排成四边形, 有三行
+
 /playerGroup bot spawn 9 formation quadrangle 3
+
 # 创建一个组名为 bot 的假人组, 有 9 个假人, 并且排成四边形, 有三行, 每一个假人间隔三格
+
 /playerGroup bot spawn 9 formation quadrangle 3 interstice 3
+
 # 创建一个组名为 bot 的假人组, 有 9 个假人, 并且排成一排, 格内存在 3 个假人, 每格假人间隔三格
+
 /playerGroup bot spawn 9 formation rowFold 3 interstice 3
 ```
 
-### /playerManage
-使用此指令进行假人保存/管理/快捷操作, `/playerManage` 将使用 `splite` 保存假人数据
+#### 空假人组
 
-假人数据将保存在 mc 根目录下的 `pecaPlayer.db` 文件, 可以使用 sql/[sql 可视化工具](https://sqlitebrowser.org/) 查询
+你可以使用 `/playerGroup bot spawn` 直接创建一个组名为 bot 的假人组, 里面没有任何假人, 然后手动编辑假人组成员后保存,
+用于需要多个假人且位置没有队形的情况
+
+`/playerGroup bot add [假人]` 向组添加假人, 如果组已经保存在数据库将更新数据
+
+`/playerGroup bot del [假人]` 向组删除假人, 如果组已经保存在数据库将更新数据
+
+#### 假人组保存
+
+使用此指令进行假人组保存 `/playerGroup [假人组名] save` 将使用 `splite` 保存数据
+
+数据将保存在当前世界存档根目录下的 `pecaPlayer.db` 文件, 可以使用 sql/[sql 可视化工具](https://sqlitebrowser.org/) 查询
+
+使用 `/playerGroup list` 查询所有已保存假人组
+
+`/playerGroup id [假人组ID] execute` 执行假人组所有假人保存的操作
+
+假人组 id 可以使用 `/playerGroup list` 找到对应假人组查看详细获得
+
+`/playerGroup id [假人组ID] execute add [假人操作指令]` 向假人组所有假人添加操作, 使用 `%s` 代替假人名, `%s` 会被替换成下一个假人名
+
+#### 例子
+
+```markdown
+# 有一个 id 为 1 的假人组, 内有假人 bot_1, bot_2, bot_3, bot_...
+
+# %s 将会替换成 bot_1, bot_2, bot_3, bot_...
+
+# id 为 1 的假人组, 内所有假人添加向上看操作
+
+/playerGroup id 1 execute add "/player %s look up"
+```
+
+`/playerGroup id [假人组ID] execute set [假人操作位置] [假人操作指令]` 修改假人组所有假人在第几个的操作
+
+`/playerGroup id [假人组ID] execute del [假人操作位置]` 删除假人组所有假人在第几个的操作
+
+`/playerGroup id [假人组ID] execute clear` 清空假人组所有假人的操作
+
+使用 `index` 选择仅操作第几个假人
+
+#### 例子
+
+```markdown
+# 有一个 id 为 1 的假人组, 内有假人10个, 修改第5个假人的第2个操作为向上看
+
+/playerGroup id 1 execute set 2 "/player %s look up" index 5
+
+# 有一个 id 为 1 的假人组, 内有假人10个, 删除第2个假人的第1个操作
+
+/playerGroup id 1 execute del index 2
+```
+
+### /playerManage
+
+使用此指令进行假人保存/管理/快捷操作, `/playerManage` 将使用 `splite` 保存数据
+
+数据将保存在当前世界存档根目录下的 `pecaPlayer.db` 文件, 可以使用 sql/[sql 可视化工具](https://sqlitebrowser.org/) 查询
 
 使用此指令将当前玩家的数据保存为假人数据 `/playerManage clone [用途]`
 
@@ -95,23 +159,63 @@ quadrangle
 可以一次从两个方面搜索假人
 
 #### 例子
+
 ```markdown
 # 搜索在主世界, 并且名称内带有 bot 的假人
+
 /playerManage find dimension minecraft:overworld is bot
+
 # 搜索名称内带有 test, 并且游戏模式为生存的假人
+
 /playerManage find test in survival
+
 # 搜索在当前玩家坐标不超过 50 的范围, 并且在地狱的假人
+
 /playerManage find pos ~ ~ ~ inside 50 in minecraft:the_nether
+
 # 搜索名称内带有 bot, 并且在当前玩家坐标不超过 20 的范围
+
 /playerManage find bot at ~ ~ ~ inside 20
 ```
 
+#### 假人 保存/执行 操作
+
+假人 id 可以使用 `/playerManage list` / `/playerManage find` 找到对应假人组查看详细获得
+
+`/playerManage id [假人ID] execute` 执行假人保存的操作
+
+`/playerManage id [假人ID] execute add [假人操作指令]` 假人添加操作
+
+`/playerManage id [假人ID] execute del [假人操作位置]` 删除假人在第几个的操作
+
+`/playerManage id [假人ID] execute set [假人操作位置] [假人操作指令]` 修改假人在第几个的操作
+
+`/playerManage id [假人ID] execute clear` 清空假人所有的操作
+
+#### 例子
+
+```markdown
+# 有一个 id 为 1 的假人, 名称为 bot_1, 添加操作向上看
+
+`/playerManage id [假人ID] execute add "/player bot_1 look up"`
+
+# 有一个 id 为 1 的假人, 名称为 bot_1, 修改第二个操作向上看
+
+`/playerManage id [假人ID] execute set 2 "/player bot_1 look up"`
+
+# 有一个 id 为 1 的假人, 删除第二个操作
+
+`/playerManage id [假人ID] del 2`
+```
+
 #### 搜索坐标范围
+
 搜索坐标时使用 `inside` 指定搜索范围, 搜索范围为
 
 `传入坐标(x, y, z) - inside <= 检查坐标(x, y, z) <= 传入坐标(x, y, z) + inside`
 
 ### /playerAuto
+
 使用此指令进行假人任务, 使用 `/playerAuto [假人名] stop` 停止假人任务
 
 #### 假人分类

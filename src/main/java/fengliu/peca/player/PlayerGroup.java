@@ -25,6 +25,9 @@ import java.util.List;
 
 import static fengliu.peca.util.CommandUtil.getArgOrDefault;
 
+/**
+ * 假人组
+ */
 public class PlayerGroup implements IPlayerGroup {
     private long id = -1;
     public static final List<PlayerGroup> groups = new ArrayList<>();
@@ -77,23 +80,42 @@ public class PlayerGroup implements IPlayerGroup {
         });
     }
 
-    public static void createGroup(PlayerGroupData playerGroupData, MinecraftServer server){
+    /**
+     * 创建假人组
+     *
+     * @param playerGroupData 假人组数据
+     * @param server          服务器实例
+     */
+    public static void createGroup(PlayerGroupData playerGroupData, MinecraftServer server) {
         new PlayerGroup(playerGroupData, server);
     }
 
-    public static int createGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos){
+    /**
+     * 指令创建假人组
+     *
+     * @param context      指令上下文
+     * @param formationPos 假人成员坐标
+     * @return Command.SINGLE_SUCCESS
+     */
+    public static int createGroup(CommandContext<ServerCommandSource> context, Vec3d[] formationPos) {
         new PlayerGroup(context, formationPos);
         return Command.SINGLE_SUCCESS;
     }
 
-    public static int createGroup(CommandContext<ServerCommandSource> context){
+    /**
+     * 指令创建空假人组
+     *
+     * @param context 指令上下文
+     * @return Command.SINGLE_SUCCESS
+     */
+    public static int createGroup(CommandContext<ServerCommandSource> context) {
         new PlayerGroup(context, null);
         return Command.SINGLE_SUCCESS;
     }
 
-    public static PlayerGroup getGroup(String groupName){
-        for (PlayerGroup group: groups) {
-            if (!group.getName().equals(groupName)){
+    public static PlayerGroup getGroup(String groupName) {
+        for (PlayerGroup group : groups) {
+            if (!group.getName().equals(groupName)) {
                 continue;
             }
             return group;
@@ -151,19 +173,29 @@ public class PlayerGroup implements IPlayerGroup {
         return this.groupAmount;
     }
 
-    public enum FormationType{
+    /**
+     * 假人组队形
+     */
+    public enum FormationType {
+
+        /**
+         * 列
+         */
         COLUMN("column", (amount, pos, direction, row, interstice, formationPos) -> {
-            for (int index = 0; index < amount; index++){
+            for (int index = 0; index < amount; index++) {
                 formationPos[index] = pos.offset(direction, addInterstice(index, interstice));
             }
             return formationPos;
         }),
 
+        /**
+         * 可叠加列
+         */
         COLUMN_FOLD("columnFold", (amount, pos, direction, row, interstice, formationPos) -> {
             int rowIndex = 0;
             int rowSize = (int) Math.ceil((double) (amount / row));
-            for (int index = 0; index < amount; index++){
-                if (index % rowSize == 0){
+            for (int index = 0; index < amount; index++) {
+                if (index % rowSize == 0) {
                     rowIndex = 0;
                 }
                 formationPos[index] = pos.offset(direction, addInterstice(rowIndex, interstice));
@@ -172,20 +204,26 @@ public class PlayerGroup implements IPlayerGroup {
             return formationPos;
         }),
 
+        /**
+         * 行
+         */
         ROW("row", ((amount, pos, direction, row, interstice, formationPos) -> {
             Direction rowDirection = getRowDirection(direction);
-            for (int index = 0; index < amount; index++){
+            for (int index = 0; index < amount; index++) {
                 formationPos[index] = pos.offset(rowDirection, addInterstice(index, interstice));
             }
             return formationPos;
         })),
 
+        /**
+         * 可叠加行
+         */
         ROW_FOLD("rowFold", ((amount, pos, direction, row, interstice, formationPos) -> {
             int rowIndex = 0;
             int rowSize = (int) Math.ceil((double) (amount / row));
             Direction rowDirection = getRowDirection(direction);
-            for (int index = 0; index < amount; index++){
-                if (index % rowSize == 0){
+            for (int index = 0; index < amount; index++) {
+                if (index % rowSize == 0) {
                     rowIndex = 0;
                 }
                 formationPos[index] = pos.offset(rowDirection, addInterstice(rowIndex, interstice));
@@ -194,13 +232,16 @@ public class PlayerGroup implements IPlayerGroup {
             return formationPos;
         })),
 
+        /**
+         * 四边形
+         */
         QUADRANGLE("quadrangle", (amount, pos, direction, row, interstice, formationPos) -> {
             int rowIn = 0;
             int rowIndex = 0;
             int rowSize = (int) Math.ceil((double) (amount / row));
             Direction rowDirection = getRowDirection(direction);
-            for (int index = 0; index < amount; index++){
-                if (index % rowSize == 0){
+            for (int index = 0; index < amount; index++) {
+                if (index % rowSize == 0) {
                     rowIn++;
                     rowIndex = 0;
                 }
@@ -216,42 +257,76 @@ public class PlayerGroup implements IPlayerGroup {
                 return Direction.EAST;
             } else if (direction == Direction.WEST){
                 return Direction.NORTH;
-            } else if (direction == Direction.EAST){
+            } else if (direction == Direction.EAST) {
                 return Direction.SOUTH;
-            } else{
+            } else {
                 return Direction.WEST;
             }
         }
 
-        private static int addInterstice(int index, int interstice){
+        private static int addInterstice(int index, int interstice) {
             return index + (interstice * index);
         }
 
-        private interface Formation{
+        /**
+         * 队形计算
+         */
+        private interface Formation {
+
+            /**
+             * 计算队形坐标, 返回队形坐标数组
+             *
+             * @param amount       队形成员数
+             * @param pos          起始坐标
+             * @param direction    方向
+             * @param row          行数
+             * @param interstice   间隔
+             * @param formationPos 队形坐标数组
+             * @return 队形坐标数组
+             */
             Vec3d[] get(int amount, Vec3d pos, Direction direction, int row, int interstice, Vec3d[] formationPos);
         }
 
         public final String name;
         private final Formation formation;
 
-        FormationType(String name, Formation formation){
+        /**
+         * 假人组队形
+         *
+         * @param name      队形名
+         * @param formation 队形计算
+         */
+        FormationType(String name, Formation formation) {
             this.name = name;
             this.formation = formation;
         }
 
-        public Vec3d[] getFormationPos(CommandContext<ServerCommandSource> context, Direction direction){
+        /**
+         * 获取队形坐标数组
+         *
+         * @param context   指令上下文
+         * @param direction 队形方向
+         * @return 队形坐标数组
+         */
+        public Vec3d[] getFormationPos(CommandContext<ServerCommandSource> context, Direction direction) {
             int amount = IntegerArgumentType.getInteger(context, "amount");
             return this.formation.get(amount,
-                getArgOrDefault(() -> Vec3ArgumentType.getVec3(context, "position"), context.getSource().getPosition()),
-                direction,
-                getArgOrDefault(() -> IntegerArgumentType.getInteger(context, "row"), 0),
-                getArgOrDefault(() -> IntegerArgumentType.getInteger(context, "length"), 0),
-                new Vec3d[amount]);
+                    getArgOrDefault(() -> Vec3ArgumentType.getVec3(context, "position"), context.getSource().getPosition()),
+                    direction,
+                    getArgOrDefault(() -> IntegerArgumentType.getInteger(context, "row"), 0),
+                    getArgOrDefault(() -> IntegerArgumentType.getInteger(context, "length"), 0),
+                    new Vec3d[amount]);
         }
 
-        public Vec3d[] getFormationPos(CommandContext<ServerCommandSource> context){
+        /**
+         * 获取当前用户方向队形坐标数组
+         *
+         * @param context 指令上下文
+         * @return 队形方向
+         */
+        public Vec3d[] getFormationPos(CommandContext<ServerCommandSource> context) {
             PlayerEntity player = context.getSource().getPlayer();
-            if (player == null){
+            if (player == null) {
                 return null;
             }
 

@@ -18,6 +18,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.util.WorldSavePath;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +33,13 @@ public class PecaMod implements ModInitializer, CarpetExtension {
     public static final String MOD_ID = "peca";
     public static Path MC_PATH;
     public static String MOD_VERSION;
-    public static final String dbPath;
-    public static final String dbUrl;
+    public static String dbPath;
+    public static String dbUrl;
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     static {
         CarpetServer.manageExtension(new PecaMod());
         MC_PATH = FabricLoader.getInstance().getGameDir();
-        dbPath = MC_PATH + "/pecaPlayer.db";
-        dbUrl = "jdbc:sqlite:" + dbPath;
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> MOD_VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
     }
 
@@ -84,6 +83,9 @@ public class PecaMod implements ModInitializer, CarpetExtension {
 
     @Override
     public void onServerLoaded(MinecraftServer server) {
+        dbPath = server.getSavePath(WorldSavePath.ROOT).getParent() + "/pecaPlayer.db";
+        dbUrl = "jdbc:sqlite:" + dbPath;
+
         PlayerSql.createTable();
         PlayerGroupSql.createTable();
     }
