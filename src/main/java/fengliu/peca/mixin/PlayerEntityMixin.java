@@ -131,7 +131,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             }
 
             ItemStack copyItem = itemStack.copy();
-            if (PecaSettings.playerDropLowTool) {
+            if (PecaSettings.fakePlayerDropLowTool) {
                 this.dropItem(mainStack.copy(), false);
                 mainStack.decrement(1);
                 itemStack.decrement(1);
@@ -151,7 +151,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         }
 
         ((IPlayerAuto) this).runAutoTask();
-        if (PecaSettings.playerReplaceLowTool) {
+        if (PecaSettings.fakePlayerReplaceLowTool) {
             playerReplaceLowTool();
         }
     }
