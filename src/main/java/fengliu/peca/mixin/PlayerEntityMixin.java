@@ -1,14 +1,24 @@
 package fengliu.peca.mixin;
 
+import carpet.fakes.ServerPlayerInterface;
+import carpet.helpers.EntityPlayerActionPack;
 import carpet.patches.EntityPlayerMPFake;
 import fengliu.peca.PecaSettings;
 import fengliu.peca.player.IPlayerAuto;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,18 +28,40 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity {
-    @Shadow public abstract boolean damage(DamageSource source, float amount);
-    @Shadow public int totalExperience;
-    @Shadow public int experienceLevel;
+    @Shadow
+    public abstract boolean damage(DamageSource source, float amount);
+
+    @Shadow
+    public int totalExperience;
+    @Shadow
+    public int experienceLevel;
+
+    @Shadow
+    @Final
+    protected static TrackedData<Byte> PLAYER_MODEL_PARTS;
+
+    @Shadow
+    public abstract PlayerInventory getInventory();
+
+    @Shadow
+    @Final
+    private PlayerInventory inventory;
+
+    @Shadow
+    public abstract void onDeath(DamageSource damageSource);
+
+    @Shadow
+    @Nullable
+    public abstract ItemEntity dropItem(ItemStack stack, boolean retainOwnership);
 
     protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
 
     @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
-    public void fakePlayerImmuneDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir){
-        if ((PlayerEntity) (Object) this instanceof EntityPlayerMPFake){
-            if (PecaSettings.fakePlayerImmuneDamage){
+    public void fakePlayerImmuneDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if ((PlayerEntity) (Object) this instanceof EntityPlayerMPFake) {
+            if (PecaSettings.fakePlayerImmuneDamage) {
                 cir.cancel();
             } else if(this.getHealth() <= amount && PecaSettings.fakePlayerNotDie){
                 this.setHealth(0.1f);
@@ -69,17 +101,58 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Inject(method = "dropInventory", at = @At("HEAD"), cancellable = true)
-    public void fakePlayerKeepInventory(CallbackInfo ci){
-        if ((PlayerEntity) (Object) this instanceof EntityPlayerMPFake && PecaSettings.fakePlayerKeepInventory){
+    public void fakePlayerKeepInventory(CallbackInfo ci) {
+        if ((PlayerEntity) (Object) this instanceof EntityPlayerMPFake && PecaSettings.fakePlayerKeepInventory) {
             super.dropInventory();
             ci.cancel();
         }
     }
 
+    private void playerReplaceLowTool() {
+        ItemStack mainStack = this.getMainHandStack();
+        if (!mainStack.isDamageable()) {
+            return;
+        }
+
+        if (mainStack.getDamage() + 10 < mainStack.getMaxDamage()) {
+            return;
+        }
+
+        PlayerInventory inventory = this.getInventory();
+        for (int index = 0; index < 54; index++) {
+            ItemStack itemStack = inventory.getStack(index);
+            if (!mainStack.isOf(itemStack.getItem())) {
+                continue;
+            }
+
+            int slot = inventory.getSlotWithStack(itemStack);
+            if (slot == inventory.selectedSlot) {
+                continue;
+            }
+
+            ItemStack copyItem = itemStack.copy();
+            if (PecaSettings.playerDropLowTool) {
+                this.dropItem(mainStack.copy(), false);
+                mainStack.decrement(1);
+                itemStack.decrement(1);
+            } else {
+                inventory.setStack(slot, mainStack);
+            }
+            inventory.setStack(inventory.selectedSlot, copyItem);
+            return;
+        }
+        ((ServerPlayerInterface) this).getActionPack().stopAll();
+    }
+
     @Inject(method = "tick", at = @At("RETURN"))
-    public void fakePlayerRunAutoTask(CallbackInfo ci){
-        if ((PlayerEntity) (Object) this instanceof EntityPlayerMPFake){
-            ((IPlayerAuto) this).runAutoTask();
+    public void fakePlayerRunAutoTask(CallbackInfo ci) {
+        if (!((PlayerEntity) (Object) this instanceof EntityPlayerMPFake)) {
+            return;
+        }
+
+        ((IPlayerAuto) this).runAutoTask();
+        if (PecaSettings.playerReplaceLowTool) {
+            playerReplaceLowTool();
         }
     }
 }
