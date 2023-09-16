@@ -75,7 +75,7 @@ public class PlayerUtil {
             flying = true;
         }
 
-        return EntityPlayerMPFake.createFake(name, context.getSource().getServer(), pos, facing.y, facing.x, context.getSource().getPlayer().getSpawnPointDimension(), mode, flying);
+        return EntityPlayerMPFake.createFake(name, context.getSource().getServer(), pos.getX(), pos.getY(), pos.getY(), facing.y, facing.x, context.getSource().getPlayer().getSpawnPointDimension(), mode, flying);
     }
 
     public static EntityPlayerMPFake spawn(String name, Vec3d pos, CommandContext<ServerCommandSource> context){

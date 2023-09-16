@@ -87,8 +87,8 @@ public class PecaSettings {
     public static boolean fakePlayerKeepInventory = false;
 
     @Rule(categories = {PECA})
-    public static boolean playerReplaceLowTool = false;
+    public static boolean fakePlayerReplaceLowTool = false;
 
     @Rule(categories = {PECA})
-    public static boolean playerDropLowTool = false;
+    public static boolean fakePlayerDropLowTool = false;
 }

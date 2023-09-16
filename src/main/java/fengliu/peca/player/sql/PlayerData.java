@@ -194,6 +194,6 @@ public record PlayerData(
         if (!PlayerUtil.canSpawn(this.name, server.getPlayerManager())){
             return null;
         }
-        return EntityPlayerMPFake.createFake(this.name, server, this.pos, this.yaw, this.pitch, RegistryKey.of(RegistryKeys.WORLD, this.dimension), this.gamemode, this.flying);
+        return EntityPlayerMPFake.createFake(this.name, server, this.pos.getX(), this.pos.getY(), this.pos.getY(), this.yaw, this.pitch, RegistryKey.of(RegistryKeys.WORLD, this.dimension), this.gamemode, this.flying);
     }
 }
